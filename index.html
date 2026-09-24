@@ -103,7 +103,6 @@
         @keyframes pop-highlight { 0% { transform: scale(1); } 50% { transform: scale(1.6); z-index: 30; } 100% { transform: scale(1); } }
         .target-highlight { animation: pop-highlight 1.2s ease-in-out !important; background-color: var(--self) !important; color: #fff !important; z-index: 30 !important; }
 
-        /* 💡 浮動提示框 (Tooltip) 樣式 */
         .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 6000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
         .tooltip.show { opacity: 1; }
         .tt-group { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 4px; color: #a5d8ff; }
@@ -122,6 +121,10 @@
 
         .zoom-controls { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 6px; z-index: 20; }
         .zoom-btn { width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 1px solid #ced4da; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        /* 💡 Footer 隱藏式開發者資訊 */
+        .footer-info { text-align: center; font-size: 10px; color: #adb5bd; margin-top: 16px; padding-bottom: 8px; }
+        .footer-info a { color: #adb5bd; text-decoration: none; }
         
         @media (max-width: 768px) {
             body { padding: 0; background: var(--card-bg); }
@@ -207,6 +210,11 @@
             <button class="zoom-btn" onclick="zoom(-0.15)">－</button>
             <button class="zoom-btn" onclick="resetZoom()">⟲</button>
         </div>
+    </div>
+    
+    <!-- 💡 低調的開發者資訊 (置於頁面最底下) -->
+    <div class="footer-info">
+        開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.24
     </div>
 </div>
 
@@ -881,6 +889,7 @@
 
     function toggleSwapMode() {
         closeAdmin();
+        hideTooltip();
         isSwapMode = true; pendingSwaps = []; swapSeatA = null;
         document.getElementById('swapBar').style.display = 'flex';
         updateSwapStatusText();
