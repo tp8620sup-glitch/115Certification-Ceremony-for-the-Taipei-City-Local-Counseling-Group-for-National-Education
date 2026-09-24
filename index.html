@@ -18,6 +18,11 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", sans-serif; background-color: var(--bg); color: var(--text-main); padding: 12px 8px; display: flex; justify-content: center; overflow-x: hidden; }
         .app-container { width: 100%; max-width: 1024px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 16px; position: relative; display: flex; flex-direction: column; min-height: calc(100vh - 24px); }
         
+        /* 💡 資料載入遮罩動畫 */
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
+        .loader-spinner { width: 50px; height: 50px; border: 4px solid #e7f5ff; border-top: 4px solid #1864ab; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .top-controls { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s, opacity 0.3s; transform-origin: top; overflow: visible; }
         .top-controls.collapsed { transform: translateY(-120%); max-height: 0; opacity: 0; pointer-events: none; margin-bottom: 0 !important; }
         
@@ -103,11 +108,7 @@
         @keyframes pop-highlight { 0% { transform: scale(1); } 50% { transform: scale(1.6); z-index: 30; } 100% { transform: scale(1); } }
         .target-highlight { animation: pop-highlight 1.2s ease-in-out !important; background-color: var(--self) !important; color: #fff !important; z-index: 30 !important; }
 
-        .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 6000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
-        .tooltip.show { opacity: 1; }
-        .tt-group { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 4px; color: #a5d8ff; }
-        .tt-color { width: 10px; height: 10px; border-radius: 2px; }
-
+        /* ====== 管理員相關 UI ====== */
         body.admin-mode .seat-node.empty { background: repeating-linear-gradient(45deg, #f1f3f5, #f1f3f5 3px, #e9ecef 3px, #e9ecef 6px); color: #adb5bd; }
         body.admin-mode .map-viewport { height: calc(100vh - 120px); }
         .admin-btn { position: fixed; bottom: 20px; right: 20px; background: #343a40; color: #fff; padding: 10px 16px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999; border: none; display: none; }
@@ -122,8 +123,17 @@
         .zoom-controls { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 6px; z-index: 20; }
         .zoom-btn { width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 1px solid #ced4da; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* 💡 Footer 隱藏式開發者資訊 */
-        .footer-info { text-align: center; font-size: 10px; color: #adb5bd; margin-top: 16px; padding-bottom: 8px; }
+        /* 💡 浮動提示卡片 (Tooltip) */
+        .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 6000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
+        .tooltip.show { opacity: 1; }
+        .tt-group { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 4px; color: #a5d8ff; }
+        .tt-color { width: 10px; height: 10px; border-radius: 2px; }
+
+        /* 💡 隱藏版重新載入按鈕 (超級不明顯) */
+        .btn-force-reload { font-size: 10px; color: rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); background: transparent; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: 0.3s; }
+        .btn-force-reload:hover { color: #868e96; border-color: #ced4da; }
+        
+        .footer-info { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 10px; color: #adb5bd; margin-top: 16px; padding-bottom: 8px; }
         .footer-info a { color: #adb5bd; text-decoration: none; }
         
         @media (max-width: 768px) {
@@ -134,6 +144,12 @@
     </style>
 </head>
 <body>
+
+<!-- 💡 資料載入遮罩 -->
+<div id="loadingOverlay">
+    <div class="loader-spinner"></div>
+    <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入會場與座位演算...</div>
+</div>
 
 <div id="minimalBadge" class="minimal-user-badge" onclick="resetToSearch()">
     <span id="mBadgeName">姓名</span> 
@@ -212,15 +228,16 @@
         </div>
     </div>
     
-    <!-- 💡 低調的開發者資訊 (置於頁面最底下) -->
+    <!-- 開發者資訊與隱藏版更新按鈕 -->
     <div class="footer-info">
-        開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.24
+        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.24-2</span>
+        <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新</button>
     </div>
 </div>
 
 <div id="seatTooltip" class="tooltip"></div>
 
-<!-- 💡 手機版點擊單一座位彈出之詳細面板 -->
+<!-- 手機版底部彈出選單 -->
 <div id="bsOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:4999;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
 <div id="bottomSheet" class="mobile-group-sheet">
     <div class="bs-handle"></div>
@@ -270,12 +287,22 @@
         let cached = localStorage.getItem(CACHE_KEY);
         if (cached) { 
             initData(JSON.parse(cached)); 
-            // 💡 新增功能：背景靜默比對是否有更新
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
             backgroundCheckUpdate(); 
         } else { 
             fetchSilent(); 
         }
     });
+
+    // 💡 隱藏版強制更新按鈕功能
+    async function forceReloadData() {
+        if(!confirm('即將重新下載最新座位資料，這可能需要幾秒鐘的時間。確定要更新嗎？')) return;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '1', 10);
+        localStorage.removeItem(CACHE_KEY);
+        await fetchSilent();
+    }
 
     async function fetchSilent() {
         try {
@@ -283,40 +310,36 @@
             const data = await resp.json();
             localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             initData(data);
-        } catch (err) { console.warn("API 讀取失敗"); }
+            
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
+        } catch (err) { 
+            console.warn("API 讀取失敗"); 
+            alert('網路連線失敗，無法取得最新座位表。請重新整理網頁。');
+        }
     }
 
-    // 💡 新功能：背景無縫檢查與更新座位資料
     async function backgroundCheckUpdate() {
         try {
             const resp = await fetch(GAS_API_URL);
             const newData = await resp.json();
             const oldDataStr = localStorage.getItem(CACHE_KEY);
-            
-            // 比較總排入人數或座位字串是否有異動
             if (!oldDataStr || JSON.stringify(newData.users) !== JSON.stringify(JSON.parse(oldDataStr).users)) {
                 console.log("🔍 背景偵測到座位資料更新，正在無縫重新渲染...");
                 localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
-                
-                // 默默更新記憶體與畫面，不打擾使用者
                 apiData = newData; 
                 venueSeats = JSON.parse(JSON.stringify(newData.seats || [])); 
                 usersList = newData.users || [];
                 renderAuditorium();
                 buildMobileGroupList();
-                if (currentUser) {
-                    refreshSeatStyles();
-                }
+                if (currentUser) refreshSeatStyles();
             }
-        } catch (e) {
-            console.log("背景檢查更新失敗，忽略。");
-        }
+        } catch (e) { console.log("背景檢查更新失敗，忽略。"); }
     }
 
     function initData(data) {
         apiData = data; venueSeats = JSON.parse(JSON.stringify(data.seats || [])); usersList = data.users || [];
-        
-        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g))];
+        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g && g !== "長官"))];
         uniqueGroups.forEach((g, i) => groupColors[g] = palette30[i % palette30.length]);
         
         if (isAdmin) activateAdminMode(true);
@@ -370,7 +393,7 @@
     }
 
     function handleOverviewSeatClick(groupName) {
-        if (!isOverviewMode || !groupName) return;
+        if (!isOverviewMode || !groupName || groupName === "長官") return;
         document.getElementById('overviewHint').style.display = 'none';
         const banner = document.getElementById('activeGroupBanner');
         document.getElementById('activeGroupColor').style.backgroundColor = groupColors[groupName];
@@ -384,7 +407,7 @@
     }
 
     function getGroupSortWeight(g) {
-        if (!g) return 99;
+        if (!g || g === "長官") return 99;
         if (g.includes('語文') && g.includes('國語文')) return 1;
         if (g.includes('語文') && g.includes('本土語文')) return 2;
         if (g.includes('語文') && g.includes('英語文')) return 3;
@@ -411,7 +434,7 @@
     function buildMobileGroupList() {
         const listDiv = document.getElementById('mGroupList');
         listDiv.innerHTML = '';
-        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied').map(s => s.group))];
+        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied' && s.group !== '長官').map(s => s.group))];
         activeGroups.sort((a, b) => {
             let wa = getGroupSortWeight(a), wb = getGroupSortWeight(b);
             if (wa !== wb) return wa - wb;
@@ -444,6 +467,9 @@
         venueSeats.forEach(s => {
             const el = document.getElementById(`node-${s.seatId}`);
             if (!el) return;
+            // VIP 不受變色影響
+            if (s.type === 'VIP') return; 
+            
             if (enable && s.status === 'occupied') {
                 el.style.backgroundColor = groupColors[s.group] || '#495057';
                 el.style.border = 'none'; el.style.color = '#fff';
@@ -651,15 +677,17 @@
         const centerBlock = document.createElement('div'); centerBlock.className = 'block-seats';
 
         venueSeats.filter(s => s.floor === '4F' && s.row === 0).forEach(s => {
-            const n = document.createElement('div'); n.className = `seat-node ${s.status}`; n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
+            const n = document.createElement('div'); 
+            // 如果是 VIP 被指派，保留 reserved 樣式但可點擊
+            n.className = `seat-node ${s.status === 'occupied' ? 'reserved' : s.status}`; 
+            n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
             n.dataset.info = JSON.stringify(s); n.dataset.group = s.group || "";
             
             n.onclick = () => { 
                 if (isSwapMode) handleBatchSwapClick(s, n);
-                else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
-                else if (isMobileDevice()) showBottomSheet(s); // 💡 手機版點擊看詳細卡片
+                else if (isOverviewMode && s.group && s.group !== "長官") handleOverviewSeatClick(s.group); 
+                else if (isMobileDevice()) showBottomSheet(s); 
             };
-            // 💡 電腦版滑鼠懸浮看詳細卡片 (解除只有非手機版才能看的限制)
             if (!isMobileDevice()) {
                 n.addEventListener('mouseenter', showTooltip);
                 n.addEventListener('mouseleave', hideTooltip);
@@ -693,7 +721,7 @@
                 const n = document.createElement('div'); n.className = `seat-node ${s.status}`; n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
                 n.dataset.info = JSON.stringify(s); n.dataset.group = s.group || "";
                 
-                if (isAdmin && s.status === 'occupied') { 
+                if (isAdmin && s.status === 'occupied' && s.type !== 'VIP') { 
                     n.style.backgroundColor = groupColors[s.group] || '#495057'; 
                     n.style.border = 'none'; n.style.color = '#fff'; 
                 }
@@ -701,10 +729,9 @@
                 n.onclick = () => { 
                     if (isSwapMode) handleBatchSwapClick(s, n);
                     else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
-                    else if (isMobileDevice()) showBottomSheet(s); // 💡 手機版點擊看詳細卡片
+                    else if (isMobileDevice()) showBottomSheet(s); 
                 };
                 
-                // 💡 電腦版滑鼠懸浮看詳細卡片
                 if (!isMobileDevice()) {
                     n.addEventListener('mouseenter', showTooltip);
                     n.addEventListener('mouseleave', hideTooltip);
@@ -728,7 +755,7 @@
     function setupTooltip() { window.addEventListener('scroll', hideTooltip, {passive:true}); }
     
     function showTooltip(e) {
-        if(isDragging || isMobileDevice()) return; // 手機版不觸發 hover，改由點擊彈出 BottomSheet
+        if(isDragging || isMobileDevice()) return;
         let s;
         try { if (!e.target.dataset.info) return; s = JSON.parse(e.target.dataset.info); } catch (err) { return; }
 
@@ -738,7 +765,15 @@
         if (s.status === 'empty' && s.type !== 'VIP') {
             html = `<div style="color:#40c057; font-weight:bold;">🟢 空席 (現場可用)</div><div style="font-size:12px; margin-top:4px; opacity:0.8;">${seatTxt}</div>`;
         } else if (s.type === 'VIP') {
-            html = `<div>⭐ 貴賓席 (VIP)</div><div style="font-size:12px; margin-top:4px; opacity:0.8;">0排 ${s.seatNo}號</div>`;
+            // 💡 若 VIP 有長官資料
+            if(s.name && s.name !== "貴賓席") {
+                html = `<div style="color:#ffd43b; font-weight:bold; margin-bottom:4px;">👑 貴賓保留席</div>
+                        <div style="font-size:16px; margin-bottom:2px;">${s.name}</div>
+                        <div style="font-size:12px; opacity:0.9;">${s.school} ${s.title}</div>
+                        <div style="font-size:12px; font-weight:bold; margin-top:6px; opacity:0.9; border-top:1px solid rgba(255,255,255,0.2); padding-top:4px;">${seatTxt}</div>`;
+            } else {
+                html = `<div>⭐ 貴賓席 (未指派)</div><div style="font-size:12px; margin-top:4px; opacity:0.8;">${seatTxt}</div>`;
+            }
         } else if (s.name) {
             const color = groupColors[s.group] || '#555';
             html = `<div class="tt-group"><div class="tt-color" style="background:${color}"></div>${s.group}</div>
@@ -759,7 +794,6 @@
     }
     function hideTooltip() { tooltip.classList.remove('show'); }
 
-    // 💡 確保手機版點擊座位能彈出這個詳細卡片
     function showBottomSheet(s) {
         const overlay = document.getElementById('bsOverlay');
         const sheet = document.getElementById('bottomSheet');
@@ -770,7 +804,18 @@
         if (s.status === 'empty' && s.type !== 'VIP') {
             html = `<div style="font-size:18px; font-weight:bold; color:#40c057; margin-bottom:8px;">🟢 空席可用</div><div style="color:#868e96; font-size:14px;">此座位目前無人配置，現場候補可引導入座。</div><div style="margin-top:16px; font-size:22px; font-weight:900; background:#f1f3f5; padding:10px; border-radius:8px; text-align:center;">${seatTxt}</div>`;
         } else if (s.type === 'VIP') {
-            html = `<div style="font-size:18px; font-weight:bold; color:#ffd43b; margin-bottom:8px;">⭐ 貴賓席 (VIP)</div><div style="margin-top:16px; font-size:22px; font-weight:900; background:#f1f3f5; padding:10px; border-radius:8px; text-align:center;">0排 ${s.seatNo}號</div>`;
+             if(s.name && s.name !== "貴賓席") {
+                html = `
+                <div style="display:inline-block; background:#ffd43b; color:#212529; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; margin-bottom:12px;">👑 長官席</div>
+                <div style="font-size:24px; font-weight:900; margin-bottom:4px;">${s.name} <span style="font-size:14px; font-weight:normal; color:#868e96;">${s.title}</span></div>
+                <div style="font-size:15px; color:#495057; margin-bottom:20px;">🏛️ ${s.school}</div>
+                <div style="background:#fff3cd; border:2px solid #ffe066; padding:14px; border-radius:12px; text-align:center;">
+                    <div style="font-size:12px; color:#b08d00; margin-bottom:4px;">座席代號</div>
+                    <div style="font-size:24px; font-weight:900; color:#b08d00;">${seatTxt}</div>
+                </div>`;
+            } else {
+                html = `<div style="font-size:18px; font-weight:bold; color:#ffd43b; margin-bottom:8px;">⭐ 貴賓席 (未指派)</div><div style="margin-top:16px; font-size:22px; font-weight:900; background:#f1f3f5; padding:10px; border-radius:8px; text-align:center;">${seatTxt}</div>`;
+            }
         } else if (s.name) {
             const color = groupColors[s.group] || '#1864ab';
             html = `
