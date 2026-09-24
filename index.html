@@ -15,160 +15,128 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", sans-serif; background-color: var(--bg); color: var(--text-main); padding: 16px; display: flex; justify-content: center; overflow-x: hidden; }
-        .app-container { width: 100%; max-width: 1024px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 24px; position: relative; display: flex; flex-direction: column; min-height: calc(100vh - 32px); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", sans-serif; background-color: var(--bg); color: var(--text-main); padding: 12px 8px; display: flex; justify-content: center; overflow-x: hidden; }
+        .app-container { width: 100%; max-width: 1024px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 16px; position: relative; display: flex; flex-direction: column; min-height: calc(100vh - 24px); }
         
-        /* 頂部手動收折區塊 */
-        .top-controls { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s, opacity 0.3s; transform-origin: top; }
+        .top-controls { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s, opacity 0.3s; transform-origin: top; overflow: visible; }
         .top-controls.collapsed { transform: translateY(-120%); max-height: 0; opacity: 0; pointer-events: none; margin-bottom: 0 !important; }
         
-        .reveal-header-btn { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 20px; padding: 8px 18px; font-size: 13px; font-weight: bold; color: var(--primary); cursor: pointer; z-index: 5000; opacity: 0; pointer-events: none; transition: 0.3s; border: 1px solid #ced4da; }
-        .reveal-header-btn.show { opacity: 1; pointer-events: auto; }
+        header { text-align: center; margin-bottom: 12px; }
+        header h1 { font-size: 20px; font-weight: 700; color: #1c7ed6; margin-bottom: 4px; cursor: pointer; user-select: none; }
+        header p { font-size: 12px; color: var(--text-muted); }
 
-        header { text-align: center; margin-bottom: 20px; }
-        header h1 { font-size: 22px; font-weight: 700; color: #1c7ed6; margin-bottom: 6px; cursor: pointer; user-select: none; }
-        header p { font-size: 13px; color: var(--text-muted); }
-
-        .search-wrapper { position: relative; max-width: 500px; margin: 0 auto 16px; }
-        .search-input { width: 100%; padding: 14px 18px; font-size: 16px; border: 2px solid #ced4da; border-radius: 12px; outline: none; transition: all 0.2s; }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(24, 100, 171, 0.15); }
-        .autocomplete-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #e9ecef; max-height: 260px; overflow-y: auto; z-index: 1000; display: none; }
-        .autocomplete-item { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f1f3f5; }
+        .search-wrapper { position: relative; max-width: 500px; margin: 0 auto 10px; }
+        .search-input { width: 100%; padding: 12px 16px; font-size: 15px; border: 2px solid #ced4da; border-radius: 10px; outline: none; transition: all 0.2s; }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(24, 100, 171, 0.15); }
+        .autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #e9ecef; max-height: 220px; overflow-y: auto; z-index: 1000; display: none; }
+        .autocomplete-item { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f1f3f5; }
         .autocomplete-item:hover { background-color: var(--primary-light); }
 
-        /* 直觀化票卡設計 */
-        .ticket-card { background: linear-gradient(135deg, #1864ab 0%, #0c3e72 100%); color: #fff; border-radius: 14px; margin: 0 auto 16px auto; max-width: 500px; box-shadow: 0 8px 20px rgba(24, 100, 171, 0.25); display: none; position: relative; transition: all 0.3s ease; overflow: hidden; }
-        .ticket-header-compact { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; cursor: pointer; }
-        .ticket-mini-info { display: flex; align-items: center; gap: 10px; }
-        .ticket-mini-seat { background: #e03131; padding: 4px 10px; border-radius: 6px; font-weight: 900; font-size: 14px; letter-spacing: 1px; display:flex; align-items:center; gap:4px;}
-        .ticket-mini-seat small { font-size: 11px; opacity: 0.85; }
-        .ticket-mini-name { font-size: 16px; font-weight: bold; }
-        .ticket-mini-group { font-size: 12px; opacity: 0.8; }
-        .ticket-actions { display: flex; gap: 8px; align-items: center; }
-        .btn-mini-download { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
-        .toggle-icon { font-size: 12px; opacity: 0.7; transition: transform 0.3s; }
-        .ticket-body { padding: 0 16px 16px 16px; display: none; border-top: 1px dashed rgba(255,255,255,0.2); margin-top: 4px; padding-top: 12px; }
-        .ticket-card.expanded .ticket-body { display: block; }
-        .ticket-card.expanded .toggle-icon { transform: rotate(180deg); }
-        .ticket-role-school { font-size: 13px; opacity: 0.9; margin-bottom: 12px; line-height: 1.5; }
-        .ticket-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .overview-controls { display: flex; justify-content: flex-end; align-items: center; margin-top: 6px; gap: 8px; }
+        .btn-toggle-overview { font-size: 12px; font-weight: 700; color: #495057; background: #f1f3f5; border: 1px solid #ced4da; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.2s; user-select: none; }
+        .btn-toggle-overview:hover { background: #e9ecef; }
+        .btn-toggle-overview.active { background: #fff3cd; color: #b08d00; border-color: #ffe066; }
+        .overview-hint { display: none; font-size: 11px; color: #e03131; font-weight: bold; background: #fff5f5; padding: 4px 8px; border-radius: 6px; border: 1px dashed #ffc9c9; animation: flash 2s infinite; }
+        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        /* 導覽分區標籤：左邊偶數、右邊奇數 */
-        .section-guide-bar { display: flex; justify-content: center; gap: 10px; font-size: 12px; font-weight: bold; color: #495057; background: #e9ecef; padding: 8px; border-radius: 8px; max-width: 500px; margin: 0 auto 12px auto; }
-        .legend-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; font-size: 12px; margin-bottom: 16px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .legend-box { width: 14px; height: 14px; border-radius: 3px; }
+        .active-group-banner { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(33, 37, 41, 0.95); color: #fff; padding: 6px 16px; border-radius: 30px; font-size: 13px; font-weight: bold; z-index: 4000; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); white-space: nowrap; pointer-events: none; }
+        .active-group-banner.show { display: flex; animation: slideDown 0.3s ease-out; }
 
-        /* 地圖 UI */
-        .map-viewport { flex-grow: 1; width: 100%; height: 520px; background-color: #f1f3f5; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #ced4da; touch-action: none; transition: height 0.4s ease; }
-        .map-canvas { position: absolute; transform-origin: 0 0; padding: 30px; min-width: 760px; will-change: transform; }
-
-        /* 舞台區 (STAGE) 在最上方 */
-        .stage-box { width: 420px; background: #343a40; color: #fff; text-align: center; padding: 12px; margin: 0 auto 20px auto; border-radius: 0 0 16px 16px; font-weight: 700; letter-spacing: 4px; position: relative; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .mobile-group-fab { display: none; position: fixed; bottom: 20px; right: 20px; background: #2f9e44; color: #fff; border: none; padding: 12px 18px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 4px 16px rgba(47, 158, 68, 0.4); z-index: 4500; cursor: pointer; transition: transform 0.2s; }
+        .mobile-group-fab:active { transform: scale(0.95); }
+        .mobile-group-fab.show { display: flex; align-items: center; gap: 6px; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        /* 4樓唯一入口 (舞台右側B梯) - 實體方塊元件，絕不壓迫座位 */
-        .entry-marker-box {
-            width: 126px; height: 26px; background: #2f9e44; color: #fff; border-radius: 6px; font-size: 11px; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(47, 158, 68, 0.3);
-            line-height: 1.1; cursor: default; border: 1px solid #fff; user-select: none;
-        }
-        .entry-marker-5f {
-            background: #2f9e44; color: #fff; border-radius: 6px; font-size: 11px; font-weight: bold;
-            padding: 4px 10px; box-shadow: 0 2px 6px rgba(47, 158, 68, 0.3); display: inline-flex; align-items: center;
-        }
+        .mobile-group-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #fff; border-radius: 20px 20px 0 0; padding: 20px; z-index: 5000; box-shadow: 0 -4px 24px rgba(0,0,0,0.2); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 80vh; display: flex; flex-direction: column; }
+        .mobile-group-sheet.show { bottom: 0; }
+        .m-sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f3f5; }
+        .m-sheet-title { font-size: 16px; font-weight: bold; color: #1864ab; }
+        .m-sheet-close { background: #f1f3f5; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #495057; }
+        .m-sheet-list { overflow-y: auto; flex-grow: 1; padding-bottom: 20px; }
+        .m-sheet-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #f8f9fa; font-size: 14px; font-weight: 600; color: #343a40; cursor: pointer; }
+        .m-sheet-item:active { background: #e7f5ff; }
 
-        .route-line { fill: none; stroke: #37b24d; stroke-width: 4; stroke-dasharray: 10, 10; animation: dash-flow 1s linear infinite; opacity: 0.95; }
-        @keyframes dash-flow { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+        .minimal-user-badge { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.15); border-radius: 30px; padding: 8px 20px; font-size: 15px; font-weight: 900; color: #212529; cursor: pointer; z-index: 5000; opacity: 0; pointer-events: none; transition: 0.3s; border: 2px solid #e03131; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .minimal-user-badge.show { opacity: 1; pointer-events: auto; animation: slideDownBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .minimal-user-badge .seat-hl { color: #e03131; }
+        @keyframes slideDownBadge { from { transform: translate(-50%, -30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
-        .floor-section { margin-bottom: 24px; background: #fff; padding: 24px; border-radius: 10px; position: relative; }
-        .floor-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .floor-title { font-size: 14px; font-weight: 700; color: #495057; }
+        .section-guide-bar { display: flex; justify-content: center; gap: 8px; font-size: 11px; font-weight: bold; color: #495057; background: #e9ecef; padding: 6px; border-radius: 6px; max-width: 500px; margin: 0 auto 8px auto; }
+        .legend-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; font-size: 11px; margin-bottom: 12px; }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-box { width: 12px; height: 12px; border-radius: 3px; }
+
+        .map-viewport { flex-grow: 1; width: 100%; height: 500px; background-color: #f1f3f5; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #ced4da; touch-action: none; }
+        .map-canvas { position: absolute; transform-origin: 0 0; padding: 20px; min-width: 760px; will-change: transform; transition: filter 0.3s; }
+
+        .map-canvas.dimmed .seat-node:not(.highlight-group) { opacity: 0.2; filter: grayscale(80%); }
+        .seat-node.highlight-group { transform: scale(1.5) !important; box-shadow: 0 0 0 3px #fff, 0 0 16px 6px rgba(245, 159, 0, 0.8) !important; z-index: 40 !important; border: 2px solid #212529 !important; animation: pulse-glow 1.5s infinite; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 2px #fff, 0 0 10px 3px rgba(245, 159, 0, 0.8); } 50% { box-shadow: 0 0 0 2px #fff, 0 0 18px 6px rgba(245, 159, 0, 1); } 100% { box-shadow: 0 0 0 2px #fff, 0 0 10px 3px rgba(245, 159, 0, 0.8); } }
+
+        .stage-box { width: 420px; background: #343a40; color: #fff; text-align: center; padding: 10px; margin: 0 auto 16px auto; border-radius: 0 0 12px 12px; font-weight: 700; letter-spacing: 4px; position: relative; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .entry-marker-box, .entry-marker-5f { background: #2f9e44; color: #fff; border-radius: 6px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(47, 158, 68, 0.3); border: 1px solid #fff; user-select: none; }
+        .entry-marker-box { width: 126px; height: 24px; flex-direction: column; line-height: 1.1; }
+        .entry-marker-5f { padding: 4px 8px; display: inline-flex; }
+
+        .route-line { fill: none; stroke: #37b24d; stroke-width: 4; stroke-dasharray: 10, 10; opacity: 0.95; }
+        .route-line.draw-anim { stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: drawLine 0.8s ease-out forwards, dash-flow 1s linear 0.8s infinite; }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+        @keyframes dash-flow { from { stroke-dasharray: 10, 10; stroke-dashoffset: 20; } to { stroke-dasharray: 10, 10; stroke-dashoffset: 0; } }
+
+        .floor-section { margin-bottom: 20px; background: #fff; padding: 16px; border-radius: 8px; position: relative; }
+        .floor-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .floor-title { font-size: 13px; font-weight: 700; color: #495057; }
         
-        .seat-row-wrapper { display: flex; justify-content: center; align-items: center; margin-bottom: 5px; position: relative; z-index: 5;}
-        .row-num-tag { width: 24px; font-size: 10px; color: var(--text-muted); text-align: center; font-weight: bold; }
+        .seat-row-wrapper { display: flex; justify-content: center; align-items: center; margin-bottom: 4px; position: relative; z-index: 5;}
+        .row-num-tag { width: 20px; font-size: 9px; color: var(--text-muted); text-align: center; font-weight: bold; }
         .block-seats { display: flex; gap: 4px; }
-        .aisle-h { width: 20px; } 
-        .cross-aisle { height: 20px; margin: 8px 0; border-top: 1px dashed #ced4da; } 
+        .aisle-h { width: 18px; } 
+        .cross-aisle { height: 16px; margin: 6px 0; border-top: 1px dashed #ced4da; } 
 
-        .seat-node { width: 22px; height: 22px; border-radius: 4px; font-size: 9px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: transform 0.1s ease; user-select: none; cursor: pointer; position: relative;}
+        .seat-node { width: 20px; height: 20px; border-radius: 4px; font-size: 8px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; user-select: none; cursor: pointer; position: relative;}
         .seat-node.empty { background-color: var(--other); color: #868e96; }
         .seat-node.occupied { background-color: #adb5bd; color: #fff; }
-        .seat-node.reserved { background-color: #ffd43b; color: #212529; border: 1px solid #fab005; font-weight: 900; }
+        .seat-node.reserved { background-color: #ffd43b; color: #212529; border: 1px solid #fab005; }
         .seat-node.group-mate { background-color: var(--group); color: #fff; }
-        .seat-node.self-seat { background-color: var(--self); color: #fff; animation: pulse-ring 1.4s infinite; z-index: 25; }
-
-        /* 隱形佔位格：確保走道筆直對齊 */
+        .seat-node.self-seat { background-color: var(--self); color: #fff; animation: pulse-ring 1.4s infinite; z-index: 25 !important; }
         .seat-node.spacer { visibility: hidden; pointer-events: none; }
 
-        @keyframes pop-highlight {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(224, 49, 49, 0.7); }
-            25% { transform: scale(1.6); box-shadow: 0 0 0 12px rgba(224, 49, 49, 0); z-index: 30; }
-            50% { transform: scale(1); box-shadow: 0 0 0 0 rgba(224, 49, 49, 0); }
-            75% { transform: scale(1.6); box-shadow: 0 0 0 12px rgba(224, 49, 49, 0); z-index: 30; }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(224, 49, 49, 0); }
-        }
+        @keyframes pop-highlight { 0% { transform: scale(1); } 50% { transform: scale(1.6); z-index: 30; } 100% { transform: scale(1); } }
         .target-highlight { animation: pop-highlight 1.2s ease-in-out !important; background-color: var(--self) !important; color: #fff !important; z-index: 30 !important; }
 
-        .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 2000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
+        /* 💡 浮動提示框 (Tooltip) 樣式 */
+        .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 6000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
         .tooltip.show { opacity: 1; }
         .tt-group { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 4px; color: #a5d8ff; }
         .tt-color { width: 10px; height: 10px; border-radius: 2px; }
 
-        .bottom-sheet-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 3000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .bottom-sheet-overlay.show { opacity: 1; pointer-events: auto; }
-        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: #fff; border-radius: 20px 20px 0 0; padding: 24px; z-index: 3001; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bottom-sheet.show { bottom: 0; }
-        .bs-handle { width: 40px; height: 5px; background: #dee2e6; border-radius: 3px; margin: 0 auto 16px auto; }
-        .bs-close { position: absolute; right: 20px; top: 20px; background: #f1f3f5; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: #495057; display: flex; align-items: center; justify-content: center; }
-        
-        .zoom-controls { position: absolute; bottom: 14px; right: 14px; display: flex; gap: 8px; z-index: 20; }
-        .zoom-btn { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 1px solid #ced4da; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-fit { font-size: 14px; width: auto; padding: 0 12px; border-radius: 18px; display: none; }
-        
         body.admin-mode .seat-node.empty { background: repeating-linear-gradient(45deg, #f1f3f5, #f1f3f5 3px, #e9ecef 3px, #e9ecef 6px); color: #adb5bd; }
         body.admin-mode .map-viewport { height: calc(100vh - 120px); }
-        body.admin-mode .btn-fit { display: flex; }
-        
         .admin-btn { position: fixed; bottom: 20px; right: 20px; background: #343a40; color: #fff; padding: 10px 16px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999; border: none; display: none; }
-        .admin-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .admin-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .admin-content { background: #fff; width: 90%; max-width: 600px; max-height: 85vh; border-radius: 16px; padding: 24px; overflow-y: auto; }
-        
         .swap-mode-bar { background: #ffe066; color: #343a40; padding: 8px; text-align: center; font-size: 13px; position: absolute; top: 0; left: 0; width: 100%; z-index: 50; display: none; align-items: center; justify-content: center; gap: 10px;}
         .swap-mode-bar button { border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer; }
         .btn-save-swaps { background:#1864ab; color:#fff; }
         .btn-cancel-swaps { background:#fa5252; color:#fff; }
         .seat-node.swap-selected { border: 2px dashed #f59f00; transform: scale(1.2); z-index: 30; }
 
-/* 頁尾低調維護資訊 */
-.app-footer {
-    margin-top: 12px;
-    text-align: center;
-    font-size: 11px;
-    color: #adb5bd;
-    letter-spacing: 0.5px;
-    user-select: none;
-    line-height: 1.5;
-}
-
-.app-footer a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.app-footer a:hover {
-    text-decoration: underline;
-    color: #868e96;
-}
-
+        .zoom-controls { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 6px; z-index: 20; }
+        .zoom-btn { width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 1px solid #ced4da; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
         @media (max-width: 768px) {
-            .app-container { padding: 16px; min-height: 100vh; border-radius: 0; }
-            .map-viewport { height: calc(100vh - 200px); }
+            body { padding: 0; background: var(--card-bg); }
+            .app-container { padding: 12px; box-shadow: none; border-radius: 0; min-height: 100vh; }
+            .map-viewport { height: calc(100vh - 160px); border-radius: 8px; }
         }
     </style>
 </head>
 <body>
 
-<div id="revealBtn" class="reveal-header-btn" onclick="revealTopControls()">👁️ 顯示標題選單</div>
+<div id="minimalBadge" class="minimal-user-badge" onclick="resetToSearch()">
+    <span id="mBadgeName">姓名</span> 
+    <span class="seat-hl" id="mBadgeSeat">4F 0排-0號</span>
+    <span style="font-size:11px; color:#868e96; margin-left:4px;">✖ 重新搜尋</span>
+</div>
 
 <div class="app-container">
     <div id="topControls" class="top-controls">
@@ -180,99 +148,85 @@
         <div class="search-wrapper">
             <input type="text" id="searchInput" class="search-input" placeholder="請輸入參與者姓名 (或學校)..." autocomplete="off">
             <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
-        </div>
-
-        <!-- 直觀版迷你膠囊票卡 -->
-        <div id="ticketCard" class="ticket-card expanded">
-            <div class="ticket-header-compact" onclick="toggleCard()">
-                <div class="ticket-mini-info">
-                    <div class="ticket-mini-seat" id="tMiniSeat"><small>4F</small> 00排 00號</div>
-                    <div>
-                        <div class="ticket-mini-name" id="tMiniName">姓名</div>
-                        <div class="ticket-mini-group" id="tMiniGroup">輔導小組</div>
-                    </div>
-                </div>
-                <div class="ticket-actions">
-                    <button class="btn-mini-download" onclick="event.stopPropagation(); downloadTicket()">📸 存圖</button>
-                    <div class="toggle-icon">▼</div>
-                </div>
-            </div>
-            <div class="ticket-body">
-                <div class="ticket-role-school">
-                    <strong>職稱：</strong><span id="tRole"></span><br>
-                    <strong>服務學校：</strong><span id="tSchool"></span>
-                </div>
-                <div class="ticket-footer">
-                    <div>進場動線：<span id="tGate" style="color: #ffe066; font-weight: 600;"></span></div>
+            
+            <div class="overview-controls">
+                <div class="overview-hint" id="overviewHint">👆 點擊地圖彩色座位即可顯示分團</div>
+                <div class="btn-toggle-overview" id="btnToggleOverview" onclick="toggleOverviewMode()">
+                    🗺️ 開啟分團總覽圖層
                 </div>
             </div>
         </div>
 
-        <!-- 導覽分區標籤：左邊偶數、右邊奇數 -->
         <div class="section-guide-bar">
-            <span>👈 左側偶數區 (12~20)</span><span>│</span><span>🎯 中央對稱區 (1~10)</span><span>│</span><span>右側奇數區 (11~21) 👉</span>
+            <span>👈 偶數區(12~20)</span><span>│</span><span>🎯 中央(1~10)</span><span>│</span><span>奇數區(11~21) 👉</span>
         </div>
         <div class="legend-bar">
-            <div class="legend-item"><div class="legend-box" style="background:var(--self);"></div>本人座位</div>
-            <div class="legend-item"><div class="legend-box" style="background:var(--group);"></div>同團夥伴</div>
-            <div class="legend-item"><div class="legend-box" style="background:#adb5bd;"></div>其他已排</div>
-            <div class="legend-item"><div class="legend-box" style="background:#ffd43b; border:1px solid #fab005;"></div>貴賓席(VIP)</div>
+            <div class="legend-item"><div class="legend-box" style="background:var(--self);"></div>本人</div>
+            <div class="legend-item"><div class="legend-box" style="background:var(--group);"></div>同團</div>
+            <div class="legend-item"><div class="legend-box" style="background:#adb5bd;"></div>已排</div>
+            <div class="legend-item"><div class="legend-box" style="background:#ffd43b;"></div>VIP</div>
         </div>
     </div>
 
+    <button id="mobileGroupFab" class="mobile-group-fab" onclick="openMobileGroupSheet()">🟢 分團列表</button>
+
     <div class="map-viewport" id="viewport">
-        <!-- 批次換位工具列 -->
         <div id="swapBar" class="swap-mode-bar">
             <span id="swapStatusText">🔄 換位模式中 (未調動)</span>
             <button class="btn-save-swaps" onclick="saveBatchSwaps()">💾 儲存同步</button>
             <button class="btn-cancel-swaps" onclick="cancelSwaps()">↩️ 放棄重設</button>
         </div>
-        
+
+        <div id="activeGroupBanner" class="active-group-banner">
+            <div id="activeGroupColor" style="width:12px; height:12px; border-radius:50%;"></div>
+            <span id="activeGroupName">分團名稱</span>
+        </div>
+
         <div class="map-canvas" id="canvas">
             <svg id="routeSvg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible;"></svg>
             
-            <!-- 1. 舞台區 (STAGE) 置頂 -->
             <div class="stage-box">舞台區 (STAGE)</div>
 
-            <!-- 2. 4 樓觀眾席 (Row 0 至 Row 14，由上至下) -->
             <div class="floor-section" id="map4FWrapper">
                 <div class="floor-header-row">
                     <div class="floor-title">4 樓觀眾席 (284席)</div>
-                    <small style="color:#868e96;">※ 面向舞台：左側為偶數，右側為奇數</small>
                 </div>
                 <div id="map4F"></div>
             </div>
 
-            <!-- 3. 5 樓觀眾席 (Row 1 至 Row 4 看台) -->
-            <div class="floor-section" id="map5FWrapper" style="margin-top: 30px;">
+            <div class="floor-section" id="map5FWrapper" style="margin-top: 24px;">
                 <div class="floor-header-row">
-                    <div class="floor-title">5 樓觀眾席 (74席 - 挑高看台)</div>
-                    <div id="entry5F" class="entry-marker-5f">🚪 5樓唯一入口 (看台右側B梯)</div>
+                    <div class="floor-title">5 樓看台區 (74席)</div>
+                    <div id="entry5F" class="entry-marker-5f">🚪 看台右側門</div>
                 </div>
                 <div id="map5F"></div>
             </div>
         </div>
         <div class="zoom-controls">
-            <button class="zoom-btn btn-fit" onclick="fitAuditoriumOverview()">📐</button>
             <button class="zoom-btn" onclick="zoom(0.15)">＋</button>
             <button class="zoom-btn" onclick="zoom(-0.15)">－</button>
             <button class="zoom-btn" onclick="resetZoom()">⟲</button>
         </div>
     </div>
-
-    <!-- ⬇️ 新增：最下方維護人與更新日期 ⬇️ -->
-    <footer class="app-footer">
-        系統維護：黃俊崎（<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>）&nbsp;・&nbsp;update：20260923
-    </footer>
 </div>
 
 <div id="seatTooltip" class="tooltip"></div>
 
-<div id="bsOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()"></div>
-<div id="bottomSheet" class="bottom-sheet">
+<!-- 💡 手機版點擊單一座位彈出之詳細面板 -->
+<div id="bsOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:4999;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
+<div id="bottomSheet" class="mobile-group-sheet">
     <div class="bs-handle"></div>
-    <button class="bs-close" onclick="closeBottomSheet()">✕</button>
+    <button class="bs-close" onclick="closeBottomSheet()" style="position:absolute; right:20px; top:20px; background:#f1f3f5; border:none; width:30px; height:30px; border-radius:50%; font-size:14px; cursor:pointer;">✕</button>
     <div id="bsContent"></div>
+</div>
+
+<div id="mGroupOverlay" class="bottom-sheet-overlay" onclick="closeMobileGroupSheet()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:4999;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
+<div id="mGroupSheet" class="mobile-group-sheet">
+    <div class="m-sheet-header">
+        <div class="m-sheet-title">選擇分團顯示</div>
+        <button class="m-sheet-close" onclick="closeMobileGroupSheet()">✕</button>
+    </div>
+    <div id="mGroupList" class="m-sheet-list"></div>
 </div>
 
 <button id="btnAdmin" class="admin-btn" onclick="openAdmin()">📊 主辦方總覽與換位</button>
@@ -281,13 +235,13 @@
 </div>
 
 <script>
-    // ⚠️ 部署後請替換下方 API 網址！
+    // ⚠️ API 網址維持不變
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzHyeT0TZINbBA2vxXhOPCf-kbYM4PvA-IEjBbQwFI2o1Z8GEdxL58_f85i6o_SiOlC/exec";
     const CACHE_KEY = "seats_cache_v11";
 
     let apiData = null, venueSeats = [], usersList = [], currentUser = null;
     let scale = 0.95, translateX = 0, translateY = 0, isDragging = false, startX, startY;
-    
+    let isOverviewMode = false;
     let isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
     let isSwapMode = false, pendingSwaps = [], swapSeatA = null;
     let clickCount = 0;
@@ -306,8 +260,13 @@
     window.addEventListener('DOMContentLoaded', () => {
         setupPanZoom(); setupAdminTrigger(); setupTooltip();
         let cached = localStorage.getItem(CACHE_KEY);
-        if (cached) { initData(JSON.parse(cached)); fetchSilent(); } 
-        else { fetchSilent(); }
+        if (cached) { 
+            initData(JSON.parse(cached)); 
+            // 💡 新增功能：背景靜默比對是否有更新
+            backgroundCheckUpdate(); 
+        } else { 
+            fetchSilent(); 
+        }
     });
 
     async function fetchSilent() {
@@ -319,6 +278,33 @@
         } catch (err) { console.warn("API 讀取失敗"); }
     }
 
+    // 💡 新功能：背景無縫檢查與更新座位資料
+    async function backgroundCheckUpdate() {
+        try {
+            const resp = await fetch(GAS_API_URL);
+            const newData = await resp.json();
+            const oldDataStr = localStorage.getItem(CACHE_KEY);
+            
+            // 比較總排入人數或座位字串是否有異動
+            if (!oldDataStr || JSON.stringify(newData.users) !== JSON.stringify(JSON.parse(oldDataStr).users)) {
+                console.log("🔍 背景偵測到座位資料更新，正在無縫重新渲染...");
+                localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+                
+                // 默默更新記憶體與畫面，不打擾使用者
+                apiData = newData; 
+                venueSeats = JSON.parse(JSON.stringify(newData.seats || [])); 
+                usersList = newData.users || [];
+                renderAuditorium();
+                buildMobileGroupList();
+                if (currentUser) {
+                    refreshSeatStyles();
+                }
+            }
+        } catch (e) {
+            console.log("背景檢查更新失敗，忽略。");
+        }
+    }
+
     function initData(data) {
         apiData = data; venueSeats = JSON.parse(JSON.stringify(data.seats || [])); usersList = data.users || [];
         
@@ -327,13 +313,8 @@
         
         if (isAdmin) activateAdminMode(true);
         renderAuditorium();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const autoName = urlParams.get('name');
-        if(autoName) {
-            const match = usersList.find(u => u.name === autoName);
-            if(match) setTimeout(() => selectUser(match), 500);
-        }
+        buildMobileGroupList(); 
+        setTimeout(resetZoom, 200); 
     }
 
     const searchInput = document.getElementById('searchInput');
@@ -354,42 +335,259 @@
         } else { dropdown.style.display = 'none'; }
     });
 
-    function toggleCard() { document.getElementById('ticketCard').classList.toggle('expanded'); }
+    function toggleOverviewMode() {
+        isOverviewMode = !isOverviewMode;
+        const btn = document.getElementById('btnToggleOverview');
+        const hint = document.getElementById('overviewHint');
+        const banner = document.getElementById('activeGroupBanner');
+        const fab = document.getElementById('mobileGroupFab');
+        
+        if (isOverviewMode) {
+            btn.innerHTML = '❌ 關閉總覽還原';
+            btn.classList.add('active');
+            if (!isMobileDevice()) hint.style.display = 'block';
+            if (isMobileDevice()) fab.classList.add('show');
+            applyOverviewColors(true);
+            setTimeout(fitAuditoriumOverview, 100);
+        } else {
+            btn.innerHTML = '🗺️ 開啟分團總覽圖層';
+            btn.classList.remove('active');
+            hint.style.display = 'none';
+            banner.classList.remove('show');
+            fab.classList.remove('show');
+            applyOverviewColors(isAdmin); 
+            removeHighlightGroupSeats();
+            resetZoom();
+        }
+    }
+
+    function handleOverviewSeatClick(groupName) {
+        if (!isOverviewMode || !groupName) return;
+        document.getElementById('overviewHint').style.display = 'none';
+        const banner = document.getElementById('activeGroupBanner');
+        document.getElementById('activeGroupColor').style.backgroundColor = groupColors[groupName];
+        document.getElementById('activeGroupName').innerText = groupName;
+        banner.classList.add('show');
+        
+        if(isMobileDevice()) closeMobileGroupSheet();
+
+        highlightGroupSeats(groupName);
+        autoFocusToGroup(groupName);
+    }
+
+    function getGroupSortWeight(g) {
+        if (!g) return 99;
+        if (g.includes('語文') && g.includes('國語文')) return 1;
+        if (g.includes('語文') && g.includes('本土語文')) return 2;
+        if (g.includes('語文') && g.includes('英語文')) return 3;
+        if (g.includes('數學')) return 4;
+        if (g.includes('社會')) return 5;
+        if (g.includes('自然科學')) return 6;
+        if (g.includes('健康與體育')) return 7;
+        if (g.includes('藝術')) return 8;
+        if (g.includes('綜合活動')) return 9;
+        if (g.includes('科技')) return 10;
+        if (g.includes('生活課程')) return 11;
+        if (g.includes('性別平等')) return 12;
+        if (g.includes('人權')) return 13;
+        if (g.includes('班級經營')) return 14;
+        if (g.includes('原住民族')) return 15;
+        if (g.includes('環境教育') || g.includes('高中職環境')) return 16;
+        if (g.includes('學前') || g.includes('國小特殊教育')) return 17;
+        if (g.includes('國中特殊教育')) return 18;
+        if (g.includes('普技高特殊教育') || g.includes('高中職特殊教育')) return 19;
+        if (g.includes('資賦優異') || g.includes('資優')) return 20;
+        return 99;
+    }
+
+    function buildMobileGroupList() {
+        const listDiv = document.getElementById('mGroupList');
+        listDiv.innerHTML = '';
+        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied').map(s => s.group))];
+        activeGroups.sort((a, b) => {
+            let wa = getGroupSortWeight(a), wb = getGroupSortWeight(b);
+            if (wa !== wb) return wa - wb;
+            if (a.includes('國小') && !b.includes('國小')) return -1;
+            if (b.includes('國小') && !a.includes('國小')) return 1;
+            return a.localeCompare(b, 'zh-TW');
+        });
+        
+        activeGroups.forEach(g => {
+            const item = document.createElement('div');
+            item.className = 'm-sheet-item';
+            item.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
+            item.onclick = () => handleOverviewSeatClick(g);
+            listDiv.appendChild(item);
+        });
+    }
+
+    function openMobileGroupSheet() {
+        document.getElementById('mGroupOverlay').style.opacity = '1';
+        document.getElementById('mGroupOverlay').style.pointerEvents = 'auto';
+        document.getElementById('mGroupSheet').classList.add('show');
+    }
+    function closeMobileGroupSheet() {
+        document.getElementById('mGroupOverlay').style.opacity = '0';
+        document.getElementById('mGroupOverlay').style.pointerEvents = 'none';
+        document.getElementById('mGroupSheet').classList.remove('show');
+    }
+
+    function applyOverviewColors(enable) {
+        venueSeats.forEach(s => {
+            const el = document.getElementById(`node-${s.seatId}`);
+            if (!el) return;
+            if (enable && s.status === 'occupied') {
+                el.style.backgroundColor = groupColors[s.group] || '#495057';
+                el.style.border = 'none'; el.style.color = '#fff';
+            } else if (!enable && s.status === 'occupied') {
+                el.style.backgroundColor = ''; el.style.border = ''; el.style.color = '';
+            }
+        });
+        if (!enable && currentUser) refreshSeatStyles();
+    }
+
+    function highlightGroupSeats(groupName) {
+        const canvas = document.getElementById('canvas');
+        canvas.classList.add('dimmed');
+        document.querySelectorAll('.seat-node').forEach(el => {
+            if (el.dataset.group === groupName) el.classList.add('highlight-group');
+            else el.classList.remove('highlight-group');
+        });
+    }
+
+    function removeHighlightGroupSeats() {
+        document.getElementById('canvas').classList.remove('dimmed');
+        document.querySelectorAll('.seat-node.highlight-group').forEach(el => el.classList.remove('highlight-group'));
+    }
+
+    function autoFocusToGroup(groupName) {
+        const nodes = document.querySelectorAll(`.seat-node[data-group="${groupName}"]`);
+        if (nodes.length === 0) return;
+        const canvas = document.getElementById('canvas'), viewport = document.getElementById('viewport');
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        nodes.forEach(n => {
+            const p = getRelativePos(n, canvas);
+            if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+            if (p.x + n.offsetWidth > maxX) maxX = p.x + n.offsetWidth;
+            if (p.y + n.offsetHeight > maxY) maxY = p.y + n.offsetHeight;
+        });
+
+        const cX = (minX + maxX) / 2, cY = (minY + maxY) / 2;
+        const vW = viewport.clientWidth, vH = viewport.clientHeight;
+        scale = Math.min((vW * 0.7) / (maxX - minX), (vH * 0.7) / (maxY - minY));
+        if (scale > 1.6) scale = 1.6; if (scale < 0.6) scale = 0.6; 
+        
+        translateX = (vW / 2) - (cX * scale); translateY = (vH / 2) - (cY * scale);
+        canvas.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        updateTransform();
+    }
 
     function selectUser(user) {
-        currentUser = user; searchInput.value = user.name; dropdown.style.display = 'none';
-        revealTopControls();
-
+        currentUser = user; searchInput.value = ''; dropdown.style.display = 'none';
+        
         const padRow = String(user.row).padStart(2, '0');
         const padSeat = String(user.seatNo).padStart(2, '0');
-        
-        document.getElementById('tMiniSeat').innerHTML = `<small>${user.floor}</small> ${padRow}排 ${padSeat}號`;
-        document.getElementById('tMiniName').innerText = user.name;
-        document.getElementById('tMiniGroup').innerText = user.group;
-        document.getElementById('tRole').innerText = user.title;
-        document.getElementById('tSchool').innerText = user.school;
-        document.getElementById('tGate').innerText = user.gate;
-        
-        const card = document.getElementById('ticketCard');
-        card.style.display = 'block'; card.classList.add('expanded');
+        document.getElementById('mBadgeName').innerText = user.name;
+        document.getElementById('mBadgeSeat').innerText = `${user.floor} ${padRow}排-${padSeat}號`;
         
         refreshSeatStyles();
-        setTimeout(() => scrollToSeatAndDrawRoute(user), 50);
+        
+        const canvas = document.getElementById('canvas');
+        const routeSvg = document.getElementById('routeSvg');
+        routeSvg.innerHTML = ''; 
+        
+        fitAuditoriumOverview(user.floor);
+        
+        canvas.classList.add('dimmed');
+        const targetNode = document.getElementById(`node-${user.seatId}`);
+        if(targetNode) targetNode.classList.add('highlight-group');
+
+        setTimeout(() => {
+            const pathD = calculateRoutePath(user);
+            routeSvg.innerHTML = `<path d="${pathD}" class="route-line draw-anim"/>`;
+            
+            setTimeout(() => {
+                document.getElementById('topControls').classList.add('collapsed');
+                document.getElementById('minimalBadge').classList.add('show');
+                
+                zoomToSeatSmoothly(user);
+                canvas.classList.remove('dimmed');
+                if(targetNode) targetNode.classList.remove('highlight-group');
+            }, 800);
+            
+        }, 200);
     }
 
-    function triggerImmersiveMode() {
-        if (!isMobileDevice() && !isAdmin) return;
-        document.getElementById('topControls').classList.add('collapsed');
-        document.getElementById('revealBtn').classList.add('show');
-    }
-
-    function revealTopControls() {
+    function resetToSearch() {
         document.getElementById('topControls').classList.remove('collapsed');
-        document.getElementById('revealBtn').classList.remove('show');
+        document.getElementById('minimalBadge').classList.remove('show');
+        document.getElementById('routeSvg').innerHTML = '';
+        currentUser = null;
+        refreshSeatStyles();
+        resetZoom();
     }
 
-    // 🎯 智慧正交導航演算法 (4條走道/階梯 + 1條前排橫走道)
-    function scrollToSeatAndDrawRoute(user) {
+    function calculateRoutePath(user) {
+        const targetNode = document.getElementById(`node-${user.seatId}`);
+        const canvas = document.getElementById('canvas');
+        if (!targetNode) return '';
+
+        const pos = getRelativePos(targetNode, canvas);
+        const targetX = pos.x + targetNode.offsetWidth / 2;
+        const targetY = pos.y + targetNode.offsetHeight / 2;
+
+        const is5F = (user.floor === '5F');
+        const entryEl = document.getElementById(is5F ? 'entry5F' : 'entry4F');
+        const ePos = getRelativePos(entryEl, canvas);
+        const startX = ePos.x + entryEl.offsetWidth / 2;
+        const startY = ePos.y + entryEl.offsetHeight / 2;
+
+        if (user.row === 0) return `M ${startX},${startY} L ${targetX},${startY}`;
+
+        let selectedAisleX;
+        let frontAisleY;
+
+        if (!is5F) {
+            const row0El = document.getElementById('row0Div');
+            const row1El = document.querySelector('#map4F .seat-row-wrapper:nth-child(2)');
+            frontAisleY = (getRelativePos(row0El, canvas).y + row0El.offsetHeight + getRelativePos(row1El, canvas).y) / 2;
+            
+            const rowTags = targetNode.closest('.seat-row-wrapper').querySelectorAll('.row-num-tag');
+            const aisles = targetNode.closest('.seat-row-wrapper').querySelectorAll('.aisle-h');
+            const farLeftAisleX = getRelativePos(rowTags[0], canvas).x + rowTags[0].offsetWidth / 2;
+            const leftInnerAisleX = getRelativePos(aisles[0], canvas).x + aisles[0].offsetWidth / 2;
+            const rightInnerAisleX = getRelativePos(aisles[1], canvas).x + aisles[1].offsetWidth / 2;
+            const farRightAisleX = getRelativePos(rowTags[1], canvas).x + rowTags[1].offsetWidth / 2;
+
+            const seatObj = venueSeats.find(s => s.seatId === user.seatId);
+            if (seatObj.block === 'RIGHT') selectedAisleX = Math.abs(targetX - farRightAisleX) <= Math.abs(targetX - rightInnerAisleX) ? farRightAisleX : rightInnerAisleX;
+            else if (seatObj.block === 'LEFT') selectedAisleX = Math.abs(targetX - farLeftAisleX) <= Math.abs(targetX - leftInnerAisleX) ? farLeftAisleX : leftInnerAisleX;
+            else selectedAisleX = (seatObj.seatNo % 2 === 0) ? leftInnerAisleX : rightInnerAisleX;
+            
+            if (selectedAisleX === farRightAisleX) return `M ${startX},${startY} L ${farRightAisleX},${startY} L ${farRightAisleX},${targetY} L ${targetX},${targetY}`;
+            
+        } else {
+            const row1El5F = document.querySelector('#map5F .seat-row-wrapper');
+            frontAisleY = getRelativePos(row1El5F, canvas).y - 10;
+            
+            const rowTags = targetNode.closest('.seat-row-wrapper').querySelectorAll('.row-num-tag');
+            const aisles = targetNode.closest('.seat-row-wrapper').querySelectorAll('.aisle-h');
+            const farLeftAisleX = getRelativePos(rowTags[0], canvas).x + rowTags[0].offsetWidth / 2;
+            const leftInnerAisleX = getRelativePos(aisles[0], canvas).x + aisles[0].offsetWidth / 2;
+            const rightInnerAisleX = getRelativePos(aisles[1], canvas).x + aisles[1].offsetWidth / 2;
+            const farRightAisleX = getRelativePos(rowTags[1], canvas).x + rowTags[1].offsetWidth / 2;
+
+            const seatObj = venueSeats.find(s => s.seatId === user.seatId);
+            if (seatObj.block === 'RIGHT') selectedAisleX = Math.abs(targetX - farRightAisleX) <= Math.abs(targetX - rightInnerAisleX) ? farRightAisleX : rightInnerAisleX;
+            else if (seatObj.block === 'LEFT') selectedAisleX = Math.abs(targetX - farLeftAisleX) <= Math.abs(targetX - leftInnerAisleX) ? farLeftAisleX : leftInnerAisleX;
+            else selectedAisleX = (seatObj.seatNo % 2 === 0) ? leftInnerAisleX : rightInnerAisleX;
+
+            if (selectedAisleX === farRightAisleX) return `M ${startX},${startY} L ${farRightAisleX},${startY} L ${farRightAisleX},${targetY} L ${targetX},${targetY}`;
+        }
+        return `M ${startX},${startY} L ${startX},${frontAisleY} L ${selectedAisleX},${frontAisleY} L ${selectedAisleX},${targetY} L ${targetX},${targetY}`;
+    }
+
+    function zoomToSeatSmoothly(user) {
         const targetNode = document.getElementById(`node-${user.seatId}`);
         const canvas = document.getElementById('canvas');
         const viewport = document.getElementById('viewport');
@@ -399,256 +597,115 @@
         const targetX = pos.x + targetNode.offsetWidth / 2;
         const targetY = pos.y + targetNode.offsetHeight / 2;
         
-        translateX = (viewport.getBoundingClientRect().width / 2) - (targetX * scale);
-        translateY = (viewport.getBoundingClientRect().height / 2) - (targetY * scale);
-        canvas.style.transition = 'transform 0.4s ease-out';
-        updateTransform();
-
-        const is5F = (user.floor === '5F');
-        const entryEl = document.getElementById(is5F ? 'entry5F' : 'entry4F');
-        const ePos = getRelativePos(entryEl, canvas);
+        scale = isMobileDevice() ? 1.5 : 1.3;
         
-        // 起點：B 梯出入口 (Row 0 右側)
-        const startX = ePos.x + entryEl.offsetWidth / 2;
-        const startY = ePos.y + entryEl.offsetHeight / 2;
-
-        let pathD = '';
-
-        if (!is5F) {
-            // 4 樓前排白色橫向大走道 (Row 0 與 Row 1 之間空白廊道)
-            const row0El = document.getElementById('row0Div');
-            const row1El = document.querySelector('#map4F .seat-row-wrapper:nth-child(2)');
-            const frontAisleY = (getRelativePos(row0El, canvas).y + row0El.offsetHeight + getRelativePos(row1El, canvas).y) / 2;
-
-            if (user.row === 0) {
-                // VIP 貴賓席直達
-                pathD = `M ${startX},${startY} L ${targetX},${startY}`;
-            } else {
-                const targetRowWrapper = targetNode.closest('.seat-row-wrapper');
-                const rowTags = targetRowWrapper.querySelectorAll('.row-num-tag');
-                const tagL = rowTags[0];
-                const tagR = rowTags[1];
-                const aisles = targetRowWrapper.querySelectorAll('.aisle-h');
-                const aisleLeft = aisles[0];
-                const aisleRight = aisles[1];
-
-                // 🎯 獲取 4 條可通行縱向通道的實際 X 座標：
-                // 1. 最左側外階梯 (tagL 處)
-                const farLeftAisleX = getRelativePos(tagL, canvas).x + tagL.offsetWidth / 2;
-                // 2. 左內走道 (12號與10號之間)
-                const leftInnerAisleX = getRelativePos(aisleLeft, canvas).x + aisleLeft.offsetWidth / 2;
-                // 3. 右內走道 (9/11號與11/13號之間)
-                const rightInnerAisleX = getRelativePos(aisleRight, canvas).x + aisleRight.offsetWidth / 2;
-                // 4. 最右側外階梯 (tagR 處，靠近入口)
-                const farRightAisleX = getRelativePos(tagR, canvas).x + tagR.offsetWidth / 2;
-
-                let selectedAisleX;
-                const seatObj = venueSeats.find(s => s.seatId === user.seatId);
-
-                if (seatObj.block === 'RIGHT') {
-                    // 右側區 (11~21 奇數)：外側席位 (17, 19, 21) 走右外階梯；內側席位 (11, 13, 15) 走右內走道
-                    selectedAisleX = Math.abs(targetX - farRightAisleX) <= Math.abs(targetX - rightInnerAisleX)
-                        ? farRightAisleX
-                        : rightInnerAisleX;
-                } else if (seatObj.block === 'LEFT') {
-                    // 左側區 (20~12 偶數)：外側席位 (20, 18, 16) 走左外階梯；內側席位 (14, 12) 走左內走道
-                    selectedAisleX = Math.abs(targetX - farLeftAisleX) <= Math.abs(targetX - leftInnerAisleX)
-                        ? farLeftAisleX
-                        : leftInnerAisleX;
-                } else {
-                    // 中央區：左半 (偶數) 走左內走道，右半 (奇數) 走右內走道
-                    selectedAisleX = (seatObj.seatNo % 2 === 0) ? leftInnerAisleX : rightInnerAisleX;
-                }
-
-                // 🎯 正交動線生成：
-                if (selectedAisleX === farRightAisleX) {
-                    // 🌟 關鍵優化：若使用右側外階梯 (如沈彥宏 10排21號)，直接從門口右切進入階梯直下，完全不橫跨前排座位！
-                    pathD = `M ${startX},${startY} L ${farRightAisleX},${startY} L ${farRightAisleX},${targetY} L ${targetX},${targetY}`;
-                } else {
-                    // 若使用其他 3 條縱走道 (如 6排8號)：下行進入前排白色走道 -> 橫向走至選定通道 -> 垂直直行至排號 -> 90度切入座位
-                    pathD = `M ${startX},${startY} L ${startX},${frontAisleY} L ${selectedAisleX},${frontAisleY} L ${selectedAisleX},${targetY} L ${targetX},${targetY}`;
-                }
-            }
-        } else {
-            // 5 樓看台導航 (同理支援 4 條縱向走道)
-            const row1El5F = document.querySelector('#map5F .seat-row-wrapper');
-            const frontAisleY = getRelativePos(row1El5F, canvas).y - 12;
-
-            const targetRowWrapper = targetNode.closest('.seat-row-wrapper');
-            const rowTags = targetRowWrapper.querySelectorAll('.row-num-tag');
-            const tagL = rowTags[0];
-            const tagR = rowTags[1];
-            const aisles = targetRowWrapper.querySelectorAll('.aisle-h');
-            const aisleLeft = aisles[0];
-            const aisleRight = aisles[1];
-
-            const farLeftAisleX = getRelativePos(tagL, canvas).x + tagL.offsetWidth / 2;
-            const leftInnerAisleX = getRelativePos(aisleLeft, canvas).x + aisleLeft.offsetWidth / 2;
-            const rightInnerAisleX = getRelativePos(aisleRight, canvas).x + aisleRight.offsetWidth / 2;
-            const farRightAisleX = getRelativePos(tagR, canvas).x + tagR.offsetWidth / 2;
-
-            let selectedAisleX;
-            const seatObj = venueSeats.find(s => s.seatId === user.seatId);
-
-            if (seatObj.block === 'RIGHT') {
-                selectedAisleX = Math.abs(targetX - farRightAisleX) <= Math.abs(targetX - rightInnerAisleX) ? farRightAisleX : rightInnerAisleX;
-            } else if (seatObj.block === 'LEFT') {
-                selectedAisleX = Math.abs(targetX - farLeftAisleX) <= Math.abs(targetX - leftInnerAisleX) ? farLeftAisleX : leftInnerAisleX;
-            } else {
-                selectedAisleX = (seatObj.seatNo % 2 === 0) ? leftInnerAisleX : rightInnerAisleX;
-            }
-
-            if (selectedAisleX === farRightAisleX) {
-                pathD = `M ${startX},${startY} L ${farRightAisleX},${startY} L ${farRightAisleX},${targetY} L ${targetX},${targetY}`;
-            } else {
-                pathD = `M ${startX},${startY} L ${startX},${frontAisleY} L ${selectedAisleX},${frontAisleY} L ${selectedAisleX},${targetY} L ${targetX},${targetY}`;
-            }
-        }
-
-        document.getElementById('routeSvg').innerHTML = `<path d="${pathD}" class="route-line"/>`;
-        targetNode.classList.remove('target-highlight'); void targetNode.offsetWidth;
-        targetNode.classList.add('target-highlight');
-        setTimeout(() => targetNode.classList.remove('target-highlight'), 1200);
+        translateX = (viewport.getBoundingClientRect().width / 2) - (targetX * scale);
+        translateY = (viewport.getBoundingClientRect().height / 2) - (targetY * scale) + (isMobileDevice() ? 30 : 0);
+        
+        canvas.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        updateTransform();
+        setTimeout(() => canvas.style.transition = 'none', 800);
     }
 
-    // 🎯 渲染演藝廳：舞台在上，左側偶數、右側奇數，走道垂直對齊
-    function renderAuditorium() {
-        // 1. 渲染 4 樓觀眾席 (Row 0 至 Row 14，由上至下)
-        const map4F = document.getElementById('map4F'); 
-        map4F.innerHTML = '';
-
-        // 第 0 排：左側身障席 + 中央 VIP 10 席 + 右側 4 樓唯一入口 (舞台右側 B 梯)
-        const row0Div = document.createElement('div');
-        row0Div.className = 'seat-row-wrapper';
-        row0Div.id = 'row0Div';
-        row0Div.style.marginBottom = '12px';
-
-        const tagL = document.createElement('div'); tagL.className = 'row-num-tag'; tagL.innerText = '0'; row0Div.appendChild(tagL);
+    function fitAuditoriumOverview(targetFloor = null) {
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        const vW = viewport.clientWidth, vH = viewport.clientHeight;
         
-        // 左側：身障輪椅席 (對齊左側 5 席寬度 126px)
-        const leftBox = document.createElement('div');
-        leftBox.className = 'block-seats';
-        leftBox.innerHTML = `<div class="seat-node reserved" title="無障礙身障席" style="width:126px; font-size:11px;">♿ 無障礙身障席</div>`;
-        row0Div.appendChild(leftBox);
+        let targetEl = canvas;
+        if (targetFloor === '4F') targetEl = document.getElementById('map4FWrapper');
+        else if (targetFloor === '5F') targetEl = document.getElementById('map5FWrapper');
 
+        const rect = targetEl.getBoundingClientRect();
+        if (!targetFloor) {
+            scale = isMobileDevice() ? 0.38 : 0.6; 
+            translateX = (vW - 820 * scale) / 2;
+            translateY = isMobileDevice() ? 10 : 20; 
+        } else {
+            const h = rect.height / scale; 
+            scale = Math.min(vW / 820, vH / h) * 0.85;
+            const p = getRelativePos(targetEl, canvas);
+            translateX = (vW - 820 * scale) / 2;
+            translateY = (vH - h * scale) / 2 - (p.y * scale);
+        }
+        
+        canvas.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        updateTransform();
+        setTimeout(() => canvas.style.transition = 'none', 600);
+    }
+
+    function renderAuditorium() {
+        const map4F = document.getElementById('map4F'); map4F.innerHTML = '';
+        const row0Div = document.createElement('div'); row0Div.className = 'seat-row-wrapper'; row0Div.id = 'row0Div'; row0Div.style.marginBottom = '12px';
+        const tagL = document.createElement('div'); tagL.className = 'row-num-tag'; tagL.innerText = '0'; row0Div.appendChild(tagL);
+        const leftBox = document.createElement('div'); leftBox.className = 'block-seats'; leftBox.innerHTML = `<div class="seat-node reserved" title="無障礙身障席" style="width:126px;">♿ 身障席</div>`; row0Div.appendChild(leftBox);
         const aisle1 = document.createElement('div'); aisle1.className = 'aisle-h'; row0Div.appendChild(aisle1);
-
-        // 中央：VIP 10 席 (10, 8, 6, 4, 2, 1, 3, 5, 7, 9，最右側補 spacer 保持對齊)
-        const centerBlock = document.createElement('div');
-        centerBlock.className = 'block-seats';
+        const centerBlock = document.createElement('div'); centerBlock.className = 'block-seats';
 
         venueSeats.filter(s => s.floor === '4F' && s.row === 0).forEach(s => {
-            const n = document.createElement('div');
-            n.className = `seat-node ${s.status}`;
-            n.id = `node-${s.seatId}`;
-            n.innerText = s.seatNo;
-            n.title = `貴賓席 (VIP) - 0排 ${s.seatNo}號`;
-            n.dataset.info = JSON.stringify(s);
-            n.onclick = () => {
+            const n = document.createElement('div'); n.className = `seat-node ${s.status}`; n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
+            n.dataset.info = JSON.stringify(s); n.dataset.group = s.group || "";
+            
+            n.onclick = () => { 
                 if (isSwapMode) handleBatchSwapClick(s, n);
-                else if (isMobileDevice()) showBottomSheet(s);
+                else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
+                else if (isMobileDevice()) showBottomSheet(s); // 💡 手機版點擊看詳細卡片
             };
-            if (!isMobileDevice() && !isSwapMode) {
+            // 💡 電腦版滑鼠懸浮看詳細卡片 (解除只有非手機版才能看的限制)
+            if (!isMobileDevice()) {
                 n.addEventListener('mouseenter', showTooltip);
                 n.addEventListener('mouseleave', hideTooltip);
             }
             centerBlock.appendChild(n);
         });
-        const spacerVip = document.createElement('div'); spacerVip.className = 'seat-node spacer'; centerBlock.appendChild(spacerVip);
-        row0Div.appendChild(centerBlock);
-
+        const spacerVip = document.createElement('div'); spacerVip.className = 'seat-node spacer'; centerBlock.appendChild(spacerVip); row0Div.appendChild(centerBlock);
         const aisle2 = document.createElement('div'); aisle2.className = 'aisle-h'; row0Div.appendChild(aisle2);
+        const rightBox = document.createElement('div'); rightBox.className = 'block-seats'; rightBox.innerHTML = `<div id="entry4F" class="entry-marker-box">🚪 4樓唯一入口<br><span>(舞台右側B梯)</span></div>`; row0Div.appendChild(rightBox);
+        const tagR = document.createElement('div'); tagR.className = 'row-num-tag'; tagR.innerText = '0'; row0Div.appendChild(tagR); map4F.appendChild(row0Div);
 
-        // 🎯 右側：4 樓唯一入口 (舞台右側 B 梯)，對齊右側 5 席寬度 126px，絕不壓迫任何座位！
-        const rightBox = document.createElement('div');
-        rightBox.className = 'block-seats';
-        rightBox.innerHTML = `<div id="entry4F" class="entry-marker-box">🚪 4樓唯一入口<br><small>(舞台右側B梯)</small></div>`;
-        row0Div.appendChild(rightBox);
-
-        const tagR = document.createElement('div'); tagR.className = 'row-num-tag'; tagR.innerText = '0'; row0Div.appendChild(tagR);
-        map4F.appendChild(row0Div);
-
-        // 渲染第 1 排至第 14 排
         for (let r = 1; r <= 14; r++) {
             map4F.appendChild(createRowElement('4F', r));
-            if (r === 7) {
-                // 第 7 排與第 8 排之間的橫向大走道
-                const cross = document.createElement('div'); cross.className = 'cross-aisle'; map4F.appendChild(cross);
-            }
+            if (r === 7) { const cross = document.createElement('div'); cross.className = 'cross-aisle'; map4F.appendChild(cross); }
         }
 
-        // 2. 渲染 5 樓看台 (第 1 排至第 4 排)
-        const map5F = document.getElementById('map5F'); 
-        map5F.innerHTML = '';
-        for (let r = 1; r <= 4; r++) {
-            map5F.appendChild(createRowElement('5F', r));
-        }
+        const map5F = document.getElementById('map5F'); map5F.innerHTML = '';
+        for (let r = 1; r <= 4; r++) map5F.appendChild(createRowElement('5F', r));
     }
 
     function createRowElement(floorName, r) {
-        const rowDiv = document.createElement('div'); 
-        rowDiv.className = 'seat-row-wrapper';
+        const rowDiv = document.createElement('div'); rowDiv.className = 'seat-row-wrapper';
         const tagL = document.createElement('div'); tagL.className = 'row-num-tag'; tagL.innerText = r; rowDiv.appendChild(tagL);
 
         ['LEFT', 'CENTER', 'RIGHT'].forEach((bType, idx) => {
             const block = document.createElement('div'); block.className = 'block-seats';
-            
-            // 🎯 第 14 排：左右無座位，補 5 個隱形佔位格確保中央區對齊中軸線
-            if (floorName === '4F' && r === 14 && (bType === 'LEFT' || bType === 'RIGHT')) {
-                for (let i = 0; i < 5; i++) {
-                    const sp = document.createElement('div'); sp.className = 'seat-node spacer'; block.appendChild(sp);
-                }
-            }
+            if (floorName === '4F' && r === 14 && (bType === 'LEFT' || bType === 'RIGHT')) for (let i = 0; i < 5; i++) block.appendChild(Object.assign(document.createElement('div'), {className: 'seat-node spacer'}));
+            if (floorName === '5F' && bType === 'LEFT') for (let i = 0; i < (r === 3 ? 1 : (r === 4 ? 2 : 0)); i++) block.appendChild(Object.assign(document.createElement('div'), {className: 'seat-node spacer'}));
 
-            // 🎯 5 樓看台梯形對齊：第 3、4 排左側補 spacer
-            if (floorName === '5F' && bType === 'LEFT') {
-                const padCount = (r === 3 ? 1 : (r === 4 ? 2 : 0));
-                for (let i = 0; i < padCount; i++) {
-                    const sp = document.createElement('div'); sp.className = 'seat-node spacer'; block.appendChild(sp);
-                }
-            }
-
-            // 填充該區塊真實座位
             venueSeats.filter(s => s.floor === floorName && s.row === r && s.block === bType).forEach(s => {
-                const n = document.createElement('div');
-                n.className = `seat-node ${s.status}`;
-                n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
-                n.dataset.info = JSON.stringify(s);
+                const n = document.createElement('div'); n.className = `seat-node ${s.status}`; n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
+                n.dataset.info = JSON.stringify(s); n.dataset.group = s.group || "";
                 
                 if (isAdmin && s.status === 'occupied') { 
                     n.style.backgroundColor = groupColors[s.group] || '#495057'; 
                     n.style.border = 'none'; n.style.color = '#fff'; 
                 }
-                
-                n.onclick = () => {
-                    if (isSwapMode) { handleBatchSwapClick(s, n); return; }
-                    if (isMobileDevice()) showBottomSheet(s);
+
+                n.onclick = () => { 
+                    if (isSwapMode) handleBatchSwapClick(s, n);
+                    else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
+                    else if (isMobileDevice()) showBottomSheet(s); // 💡 手機版點擊看詳細卡片
                 };
                 
-                if (!isMobileDevice() && !isSwapMode) {
+                // 💡 電腦版滑鼠懸浮看詳細卡片
+                if (!isMobileDevice()) {
                     n.addEventListener('mouseenter', showTooltip);
                     n.addEventListener('mouseleave', hideTooltip);
                 }
                 block.appendChild(n);
             });
 
-            // 🎯 4 樓中央區若無 11 號，最右側補隱形佔位格 spacer，確保中央走道筆直
-            if (floorName === '4F' && bType === 'CENTER') {
-                const has11 = venueSeats.some(s => s.floor === '4F' && s.row === r && s.block === 'CENTER' && s.seatNo === 11);
-                if (!has11) {
-                    const spacer = document.createElement('div');
-                    spacer.className = 'seat-node spacer';
-                    block.appendChild(spacer);
-                }
-            }
-
-            // 🎯 5 樓看台右側梯形補位：第 3、4 排右側補 spacer
-            if (floorName === '5F' && bType === 'RIGHT') {
-                const padCount = (r === 3 ? 1 : (r === 4 ? 2 : 0));
-                for (let i = 0; i < padCount; i++) {
-                    const sp = document.createElement('div'); sp.className = 'seat-node spacer'; block.appendChild(sp);
-                }
-            }
+            if (floorName === '4F' && bType === 'CENTER') if (!venueSeats.some(s => s.floor === '4F' && s.row === r && s.block === 'CENTER' && s.seatNo === 11)) block.appendChild(Object.assign(document.createElement('div'), {className: 'seat-node spacer'}));
+            if (floorName === '5F' && bType === 'RIGHT') for (let i = 0; i < (r === 3 ? 1 : (r === 4 ? 2 : 0)); i++) block.appendChild(Object.assign(document.createElement('div'), {className: 'seat-node spacer'}));
 
             rowDiv.appendChild(block);
             if (idx < 2) { const aisle = document.createElement('div'); aisle.className = 'aisle-h'; rowDiv.appendChild(aisle); }
@@ -658,10 +715,12 @@
         return rowDiv;
     }
 
+    // 💡 恢復並優化 Tooltip 與 BottomSheet 顯示邏輯
     const tooltip = document.getElementById('seatTooltip');
     function setupTooltip() { window.addEventListener('scroll', hideTooltip, {passive:true}); }
+    
     function showTooltip(e) {
-        if(isDragging || isMobileDevice() || isSwapMode) return;
+        if(isDragging || isMobileDevice()) return; // 手機版不觸發 hover，改由點擊彈出 BottomSheet
         let s;
         try { if (!e.target.dataset.info) return; s = JSON.parse(e.target.dataset.info); } catch (err) { return; }
 
@@ -692,6 +751,7 @@
     }
     function hideTooltip() { tooltip.classList.remove('show'); }
 
+    // 💡 確保手機版點擊座位能彈出這個詳細卡片
     function showBottomSheet(s) {
         const overlay = document.getElementById('bsOverlay');
         const sheet = document.getElementById('bottomSheet');
@@ -715,10 +775,12 @@
                 </div>`;
         }
         content.innerHTML = html;
-        overlay.classList.add('show'); sheet.classList.add('show');
+        overlay.style.opacity = '1'; overlay.style.pointerEvents = 'auto';
+        sheet.classList.add('show');
     }
     function closeBottomSheet() {
-        document.getElementById('bsOverlay').classList.remove('show');
+        document.getElementById('bsOverlay').style.opacity = '0';
+        document.getElementById('bsOverlay').style.pointerEvents = 'none';
         document.getElementById('bottomSheet').classList.remove('show');
     }
 
@@ -733,23 +795,42 @@
         });
     }
 
-    async function downloadTicket() {
-        const card = document.getElementById('ticketCard');
-        card.classList.remove('expanded'); 
-        const btn = card.querySelector('.btn-mini-download');
-        btn.style.display = 'none'; 
+    function setupPanZoom() {
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        viewport.addEventListener('mousedown', (e) => { canvas.style.transition = 'none'; isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; });
+        window.addEventListener('mousemove', (e) => { if (!isDragging) return; translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); });
+        window.addEventListener('mouseup', () => { isDragging = false; });
         
-        try {
-            const canvas = await html2canvas(card, { backgroundColor: null, scale: 2 });
-            const link = document.createElement('a');
-            link.download = `座位卡_${currentUser.name}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            alert('💡 票卡已下載！');
-        } catch (e) { alert('生成失敗，請使用手機截圖。'); }
-        btn.style.display = 'block';
+        let initDist = 0;
+        viewport.addEventListener('touchstart', (e) => {
+            canvas.style.transition = 'none';
+            if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - translateX; startY = e.touches[0].clientY - translateY; }
+            else if (e.touches.length === 2) { isDragging = false; initDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
+        }, {passive:true});
+        viewport.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length === 1) { translateX = e.touches[0].clientX - startX; translateY = e.touches[0].clientY - startY; updateTransform(); }
+            else if (e.touches.length === 2) {
+                const cDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                scale = Math.min(Math.max(0.3, scale + (cDist - initDist) * 0.005), 2.2);
+                initDist = cDist; updateTransform();
+            }
+        }, {passive:true});
+        viewport.addEventListener('touchend', () => { isDragging = false; });
     }
+    
+    window.zoom = function(delta) {
+        document.getElementById('canvas').style.transition = 'transform 0.2s ease-out';
+        scale = Math.min(Math.max(0.3, scale + delta), 2.2); updateTransform();
+        setTimeout(() => document.getElementById('canvas').style.transition = 'none', 200);
+    };
+    window.resetZoom = function() {
+        fitAuditoriumOverview();
+    };
 
+    // ==========================================
+    // 🎯 管理員模式專屬功能 (總覽與批次換位)
+    // ==========================================
     function setupAdminTrigger() {
         let clickTimer;
         document.getElementById('mainTitle').addEventListener('click', () => {
@@ -764,28 +845,9 @@
         isAdmin = true;
         document.body.classList.add('admin-mode');
         document.getElementById('btnAdmin').style.display = 'block';
-        if(!silent) alert("🔒 管理員模式已解鎖！\n已切換為「分團多色圖層」。");
+        if(!silent) alert("🔒 管理員模式已解鎖！\n已切換為「分團多色圖層」。\n請點擊右下方按鈕開始換位！");
         renderAuditorium();
         setTimeout(fitAuditoriumOverview, 100); 
-    }
-    
-    function fitAuditoriumOverview() {
-        const viewport = document.getElementById('viewport');
-        const canvas = document.getElementById('canvas');
-        
-        const vW = viewport.clientWidth, vH = viewport.clientHeight;
-        const contentW = 820, contentH = 1350, padding = 40;
-        
-        scale = Math.min((vW - padding * 2) / contentW, (vH - padding * 2) / contentH);
-        if (scale > 1.2) scale = 1.2; if (scale < 0.3) scale = 0.3; 
-        
-        translateX = (vW - contentW * scale) / 2;
-        translateY = (vH - contentH * scale) / 2;
-        
-        canvas.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        updateTransform();
-        setTimeout(() => canvas.style.transition = 'none', 500);
-        triggerImmersiveMode(); 
     }
 
     function openAdmin() {
@@ -819,7 +881,6 @@
 
     function toggleSwapMode() {
         closeAdmin();
-        hideTooltip();
         isSwapMode = true; pendingSwaps = []; swapSeatA = null;
         document.getElementById('swapBar').style.display = 'flex';
         updateSwapStatusText();
@@ -903,53 +964,6 @@
             } catch(e) { alert('❌ 連線錯誤，換位失敗。'); }
         }
     }
-
-    function setupPanZoom() {
-        const viewport = document.getElementById('viewport');
-        const canvas = document.getElementById('canvas');
-        const endTransition = () => { canvas.style.transition = 'none'; };
-        const autoCollapse = () => { 
-            document.getElementById('ticketCard').classList.remove('expanded'); 
-            hideTooltip(); 
-            triggerImmersiveMode();
-        };
-
-        viewport.addEventListener('mousedown', (e) => { endTransition(); autoCollapse(); isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; });
-        window.addEventListener('mousemove', (e) => { if (!isDragging) return; translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-        window.addEventListener('mouseleave', () => { isDragging = false; });
-
-        let initialDistance = 0;
-        viewport.addEventListener('touchstart', (e) => {
-            endTransition(); autoCollapse();
-            if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - translateX; startY = e.touches[0].clientY - translateY; }
-            else if (e.touches.length === 2) { isDragging = false; initialDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
-        }, {passive:true});
-        viewport.addEventListener('touchmove', (e) => {
-            if (isDragging && e.touches.length === 1) { translateX = e.touches[0].clientX - startX; translateY = e.touches[0].clientY - startY; updateTransform(); }
-            else if (e.touches.length === 2) {
-                const currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                scale = Math.min(Math.max(0.3, scale + (currentDist - initialDistance) * 0.005), 2.2);
-                initialDistance = currentDist; updateTransform();
-            }
-        }, {passive:true});
-        viewport.addEventListener('touchend', () => { isDragging = false; });
-        updateTransform();
-    }
-    
-    window.zoom = function(delta) {
-        document.getElementById('canvas').style.transition = 'transform 0.2s ease-out';
-        scale = Math.min(Math.max(0.3, scale + delta), 2.2); updateTransform();
-        setTimeout(() => document.getElementById('canvas').style.transition = 'none', 200);
-        hideTooltip(); 
-    };
-    window.resetZoom = function() {
-        document.getElementById('canvas').style.transition = 'transform 0.3s ease-out';
-        scale = 0.95; translateX = 0; translateY = 0; updateTransform();
-        setTimeout(() => document.getElementById('canvas').style.transition = 'none', 300);
-        hideTooltip(); 
-        revealTopControls();
-    };
 </script>
 </body>
 </html>
