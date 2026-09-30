@@ -59,6 +59,16 @@
         .m-sheet-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #f8f9fa; font-size: 14px; font-weight: 600; color: #343a40; cursor: pointer; }
         .m-sheet-item:active { background: #e7f5ff; }
 
+        /* 💡 電腦版的右側分團控制面板 */
+        .desktop-group-panel { position: absolute; top: 24px; right: -320px; width: 280px; background: #fff; border-radius: 12px; box-shadow: -4px 0 20px rgba(0,0,0,0.1); border: 1px solid #ced4da; height: calc(100% - 48px); display: flex; flex-direction: column; z-index: 3000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none; }
+        .desktop-group-panel.show { right: 24px; opacity: 1; pointer-events: auto; }
+        .desktop-panel-header { padding: 16px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 12px 12px 0 0; }
+        .desktop-panel-title { font-size: 15px; font-weight: bold; color: #1864ab; display: flex; align-items: center; gap: 8px;}
+        .desktop-panel-close { background: transparent; border: none; font-size: 18px; color: #868e96; cursor: pointer; }
+        .desktop-panel-list { overflow-y: auto; padding: 8px 0; flex-grow: 1; }
+        .desktop-panel-item { padding: 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: #495057; cursor: pointer; transition: 0.2s; border-bottom: 1px solid #f8f9fa;}
+        .desktop-panel-item:hover { background: #e7f5ff; color: #1864ab; }
+
         .minimal-user-badge { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.15); border-radius: 30px; padding: 8px 20px; font-size: 15px; font-weight: 900; color: #212529; cursor: pointer; z-index: 5000; opacity: 0; pointer-events: none; transition: 0.3s; border: 2px solid #e03131; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
         .minimal-user-badge.show { opacity: 1; pointer-events: auto; animation: slideDownBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .minimal-user-badge .seat-hl { color: #e03131; }
@@ -70,8 +80,7 @@
         .legend-box { width: 12px; height: 12px; border-radius: 3px; }
 
         .map-viewport { flex-grow: 1; width: 100%; height: 500px; background-color: #f1f3f5; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #ced4da; touch-action: none; }
-        /* 移除 transform-origin: 0 0，由 JS 動態計算中心點 */
-        .map-canvas { position: absolute; padding: 20px; min-width: 760px; will-change: transform; transition: filter 0.3s; transform-origin: top left; }
+        .map-canvas { position: absolute; transform-origin: 0 0; padding: 20px; min-width: 760px; will-change: transform; transition: filter 0.3s; }
 
         .map-canvas.dimmed .seat-node:not(.highlight-group) { opacity: 0.2; filter: grayscale(80%); }
         .seat-node.highlight-group { transform: scale(1.5) !important; box-shadow: 0 0 0 3px #fff, 0 0 16px 6px rgba(245, 159, 0, 0.8) !important; z-index: 40 !important; border: 2px solid #212529 !important; animation: pulse-glow 1.5s infinite; }
@@ -137,6 +146,7 @@
             body { padding: 0; background: var(--card-bg); }
             .app-container { padding: 12px; box-shadow: none; border-radius: 0; min-height: 100vh; }
             .map-viewport { height: calc(100vh - 160px); border-radius: 8px; }
+            .desktop-group-panel { display: none !important; }
         }
     </style>
 </head>
@@ -165,7 +175,7 @@
             <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
             
             <div class="overview-controls">
-                <div class="overview-hint" id="overviewHint">👆 點擊地圖彩色座位即可顯示分團</div>
+                <div class="overview-hint" id="overviewHint">👆 點擊右側列表或地圖彩色座位即可顯示分團</div>
                 <div class="btn-toggle-overview" id="btnToggleOverview" onclick="toggleOverviewMode()">
                     🗺️ 開啟分團總覽圖層
                 </div>
@@ -183,9 +193,19 @@
         </div>
     </div>
 
+    <!-- 手機版懸浮按鈕 -->
     <button id="mobileGroupFab" class="mobile-group-fab" onclick="openMobileGroupSheet()">🟢 分團列表</button>
 
     <div class="map-viewport" id="viewport">
+        <!-- 💡 新增：電腦版側邊分團控制面板 -->
+        <div id="desktopGroupPanel" class="desktop-group-panel">
+            <div class="desktop-panel-header">
+                <div class="desktop-panel-title">📌 選擇分團顯示</div>
+                <button class="desktop-panel-close" onclick="toggleOverviewMode()">✕</button>
+            </div>
+            <div id="desktopGroupList" class="desktop-panel-list"></div>
+        </div>
+
         <div id="swapBar" class="swap-mode-bar">
             <span id="swapStatusText">🔄 換位模式中 (未調動)</span>
             <button class="btn-save-swaps" onclick="saveBatchSwaps()">💾 儲存同步</button>
@@ -225,13 +245,14 @@
     </div>
     
     <div class="footer-info">
-        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.30-1</span>
+        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.30-2</span>
         <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新</button>
     </div>
 </div>
 
 <div id="seatTooltip" class="tooltip"></div>
 
+<!-- 手機版底部彈出選單 -->
 <div id="bsOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:4999;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
 <div id="bottomSheet" class="mobile-group-sheet">
     <div class="bs-handle"></div>
@@ -260,7 +281,6 @@
 
     let apiData = null, venueSeats = [], usersList = [], currentUser = null;
     let scale = 0.95, translateX = 0, translateY = 0, isDragging = false;
-    // 💡 修正兩指縮放中心點所需變數
     let lastTouchDistance = 0;
     let pinchCenterX = 0, pinchCenterY = 0;
 
@@ -273,10 +293,7 @@
     const palette30 = ['#e6194B','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#42d4f4','#f032e6','#bfef45','#fabed4','#469990','#dcbeff','#9A6324','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000075','#a9a9a9','#000000','#4B0082','#FF8C00','#00CED1','#FF1493','#7CFC00','#00BFFF','#FFD700','#8B4513'];
     let groupColors = {};
 
-    function updateTransform() { 
-        document.getElementById('canvas').style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`; 
-    }
-    
+    function updateTransform() { document.getElementById('canvas').style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`; }
     function getRelativePos(el, targetParent) {
         let x = 0, y = 0;
         while (el && el !== targetParent && el !== document.body) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; }
@@ -339,7 +356,9 @@
 
     function initData(data) {
         apiData = data; venueSeats = JSON.parse(JSON.stringify(data.seats || [])); usersList = data.users || [];
-        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g && g !== "長官"))];
+        
+        // 排除空白的群組，確保不會出錯
+        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g))];
         uniqueGroups.forEach((g, i) => groupColors[g] = palette30[i % palette30.length]);
         
         if (isAdmin) activateAdminMode(true);
@@ -372,12 +391,18 @@
         const hint = document.getElementById('overviewHint');
         const banner = document.getElementById('activeGroupBanner');
         const fab = document.getElementById('mobileGroupFab');
+        const desktopPanel = document.getElementById('desktopGroupPanel');
         
         if (isOverviewMode) {
             btn.innerHTML = '❌ 關閉總覽還原';
             btn.classList.add('active');
-            if (!isMobileDevice()) hint.style.display = 'block';
-            if (isMobileDevice()) fab.classList.add('show');
+            
+            if (isMobileDevice()) {
+                fab.classList.add('show');
+            } else {
+                hint.style.display = 'block';
+                desktopPanel.classList.add('show'); // 電腦版展開側邊欄
+            }
             applyOverviewColors(true);
             setTimeout(fitAuditoriumOverview, 100);
         } else {
@@ -386,15 +411,16 @@
             hint.style.display = 'none';
             banner.classList.remove('show');
             fab.classList.remove('show');
+            desktopPanel.classList.remove('show'); // 收起側邊欄
+            
             applyOverviewColors(isAdmin); 
             removeHighlightGroupSeats();
             resetZoom();
         }
     }
 
-    // 💡 電腦版直接點擊地圖彩色區塊以自動對焦
     function handleOverviewSeatClick(groupName) {
-        if (!isOverviewMode || !groupName || groupName === "長官") return;
+        if (!isOverviewMode || !groupName) return;
         document.getElementById('overviewHint').style.display = 'none';
         const banner = document.getElementById('activeGroupBanner');
         document.getElementById('activeGroupColor').style.backgroundColor = groupColors[groupName];
@@ -408,7 +434,7 @@
     }
 
     function getGroupSortWeight(g) {
-        if (!g || g === "長官") return 99;
+        if (!g) return 99;
         if (g.includes('語文') && g.includes('國語文')) return 1;
         if (g.includes('語文') && g.includes('本土語文')) return 2;
         if (g.includes('語文') && g.includes('英語文')) return 3;
@@ -433,9 +459,12 @@
     }
 
     function buildMobileGroupList() {
-        const listDiv = document.getElementById('mGroupList');
-        listDiv.innerHTML = '';
-        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied' && s.group !== '長官').map(s => s.group))];
+        const mListDiv = document.getElementById('mGroupList');
+        const dListDiv = document.getElementById('desktopGroupList');
+        mListDiv.innerHTML = '';
+        dListDiv.innerHTML = '';
+        
+        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied').map(s => s.group))].filter(g => g);
         activeGroups.sort((a, b) => {
             let wa = getGroupSortWeight(a), wb = getGroupSortWeight(b);
             if (wa !== wb) return wa - wb;
@@ -445,11 +474,19 @@
         });
         
         activeGroups.forEach(g => {
-            const item = document.createElement('div');
-            item.className = 'm-sheet-item';
-            item.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
-            item.onclick = () => handleOverviewSeatClick(g);
-            listDiv.appendChild(item);
+            // 手機版選項
+            const mItem = document.createElement('div');
+            mItem.className = 'm-sheet-item';
+            mItem.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
+            mItem.onclick = () => handleOverviewSeatClick(g);
+            mListDiv.appendChild(mItem);
+            
+            // 💡 電腦版選項
+            const dItem = document.createElement('div');
+            dItem.className = 'desktop-panel-item';
+            dItem.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
+            dItem.onclick = () => handleOverviewSeatClick(g);
+            dListDiv.appendChild(dItem);
         });
     }
 
@@ -468,7 +505,6 @@
         venueSeats.forEach(s => {
             const el = document.getElementById(`node-${s.seatId}`);
             if (!el) return;
-            if (s.type === 'VIP') return; 
             
             if (enable && s.status === 'occupied') {
                 el.style.backgroundColor = groupColors[s.group] || '#495057';
@@ -508,10 +544,16 @@
 
         const cX = (minX + maxX) / 2, cY = (minY + maxY) / 2;
         const vW = viewport.clientWidth, vH = viewport.clientHeight;
-        scale = Math.min((vW * 0.7) / (maxX - minX), (vH * 0.7) / (maxY - minY));
+        
+        // 💡 如果是電腦版，中心點計算要考慮右邊拉出的面板寬度 (偏左一點)
+        const offsetCenterX = isMobileDevice() ? (vW / 2) : (vW / 2) - 100;
+        
+        scale = Math.min((vW * 0.6) / (maxX - minX), (vH * 0.7) / (maxY - minY));
         if (scale > 1.6) scale = 1.6; if (scale < 0.6) scale = 0.6; 
         
-        translateX = (vW / 2) - (cX * scale); translateY = (vH / 2) - (cY * scale);
+        translateX = offsetCenterX - (cX * scale); 
+        translateY = (vH / 2) - (cY * scale);
+        
         canvas.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)';
         updateTransform();
     }
@@ -519,6 +561,7 @@
     function selectUser(user) {
         currentUser = user; searchInput.value = ''; dropdown.style.display = 'none';
         
+        // 💡 VIP 搜尋的極簡標題顯示
         const rowText = user.row === 0 ? 'VIP' : `${String(user.row).padStart(2, '0')}排`;
         const padSeat = String(user.seatNo).padStart(2, '0');
         document.getElementById('mBadgeName').innerText = user.name;
@@ -653,7 +696,9 @@
         const rect = targetEl.getBoundingClientRect();
         if (!targetFloor) {
             scale = isMobileDevice() ? 0.38 : 0.6; 
-            translateX = (vW - 820 * scale) / 2;
+            // 💡 電腦版鳥瞰時也要考慮面板空間
+            const offsetCenterX = (isMobileDevice() || !isOverviewMode) ? (vW / 2) : (vW / 2) - 100;
+            translateX = offsetCenterX - (820 * scale) / 2;
             translateY = isMobileDevice() ? 10 : 20; 
         } else {
             const h = rect.height / scale; 
@@ -684,7 +729,7 @@
             
             n.onclick = () => { 
                 if (isSwapMode) handleBatchSwapClick(s, n);
-                else if (isOverviewMode && s.group && s.group !== "長官") handleOverviewSeatClick(s.group); 
+                else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
                 else if (isMobileDevice()) showBottomSheet(s); 
             };
             if (!isMobileDevice()) {
@@ -805,7 +850,7 @@
                 html = `
                 <div style="display:inline-block; background:#ffd43b; color:#212529; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; margin-bottom:12px;">👑 長官席</div>
                 <div style="font-size:24px; font-weight:900; margin-bottom:4px;">${s.name} <span style="font-size:14px; font-weight:normal; color:#868e96;">${s.title}</span></div>
-                <div style="font-size:15px; color:#495057; margin-bottom:20px;">🏛️️ ${s.school}</div>
+                <div style="font-size:15px; color:#495057; margin-bottom:20px;">🏛 ${s.school}</div>
                 <div style="background:#fff3cd; border:2px solid #ffe066; padding:14px; border-radius:12px; text-align:center;">
                     <div style="font-size:12px; color:#b08d00; margin-bottom:4px;">座席代號</div>
                     <div style="font-size:24px; font-weight:900; color:#b08d00;">${seatTxt}</div>
@@ -845,7 +890,6 @@
         });
     }
 
-    // 💡 修正了觸控縮放的邏輯，現在兩指縮放會以「手指按壓的中心點」為基準
     function setupPanZoom() {
         const viewport = document.getElementById('viewport');
         const canvas = document.getElementById('canvas');
@@ -863,7 +907,6 @@
                 isDragging = false; 
                 lastTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 
-                // 計算兩指中心點 (相對於 viewport)
                 const rect = viewport.getBoundingClientRect();
                 pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
                 pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
@@ -878,11 +921,9 @@
             } else if (e.touches.length === 2) {
                 const newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 
-                // 計算新的 scale，並限制範圍
                 let newScale = scale * (newDist / lastTouchDistance);
                 newScale = Math.min(Math.max(0.3, newScale), 2.5);
                 
-                // 計算基於中心點的平移修正量
                 const scaleRatio = newScale / scale;
                 translateX = pinchCenterX - (pinchCenterX - translateX) * scaleRatio;
                 translateY = pinchCenterY - (pinchCenterY - translateY) * scaleRatio;
@@ -904,7 +945,6 @@
         const oldScale = scale;
         scale = Math.min(Math.max(0.3, scale + delta), 2.5);
         
-        // 按鈕縮放預設以畫面正中心為基準點
         const centerX = viewport.clientWidth / 2;
         const centerY = viewport.clientHeight / 2;
         const scaleRatio = scale / oldScale;
