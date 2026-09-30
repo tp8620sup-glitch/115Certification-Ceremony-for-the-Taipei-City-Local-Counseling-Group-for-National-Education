@@ -18,7 +18,6 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", sans-serif; background-color: var(--bg); color: var(--text-main); padding: 12px 8px; display: flex; justify-content: center; overflow-x: hidden; }
         .app-container { width: 100%; max-width: 1024px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 16px; position: relative; display: flex; flex-direction: column; min-height: calc(100vh - 24px); }
         
-        /* 💡 資料載入遮罩動畫 */
         #loadingOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease-out; }
         .loader-spinner { width: 50px; height: 50px; border: 4px solid #e7f5ff; border-top: 4px solid #1864ab; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -71,7 +70,8 @@
         .legend-box { width: 12px; height: 12px; border-radius: 3px; }
 
         .map-viewport { flex-grow: 1; width: 100%; height: 500px; background-color: #f1f3f5; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid #ced4da; touch-action: none; }
-        .map-canvas { position: absolute; transform-origin: 0 0; padding: 20px; min-width: 760px; will-change: transform; transition: filter 0.3s; }
+        /* 移除 transform-origin: 0 0，由 JS 動態計算中心點 */
+        .map-canvas { position: absolute; padding: 20px; min-width: 760px; will-change: transform; transition: filter 0.3s; transform-origin: top left; }
 
         .map-canvas.dimmed .seat-node:not(.highlight-group) { opacity: 0.2; filter: grayscale(80%); }
         .seat-node.highlight-group { transform: scale(1.5) !important; box-shadow: 0 0 0 3px #fff, 0 0 16px 6px rgba(245, 159, 0, 0.8) !important; z-index: 40 !important; border: 2px solid #212529 !important; animation: pulse-glow 1.5s infinite; }
@@ -108,7 +108,6 @@
         @keyframes pop-highlight { 0% { transform: scale(1); } 50% { transform: scale(1.6); z-index: 30; } 100% { transform: scale(1); } }
         .target-highlight { animation: pop-highlight 1.2s ease-in-out !important; background-color: var(--self) !important; color: #fff !important; z-index: 30 !important; }
 
-        /* ====== 管理員相關 UI ====== */
         body.admin-mode .seat-node.empty { background: repeating-linear-gradient(45deg, #f1f3f5, #f1f3f5 3px, #e9ecef 3px, #e9ecef 6px); color: #adb5bd; }
         body.admin-mode .map-viewport { height: calc(100vh - 120px); }
         .admin-btn { position: fixed; bottom: 20px; right: 20px; background: #343a40; color: #fff; padding: 10px 16px; border-radius: 30px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999; border: none; display: none; }
@@ -123,13 +122,11 @@
         .zoom-controls { position: absolute; bottom: 12px; right: 12px; display: flex; gap: 6px; z-index: 20; }
         .zoom-btn { width: 32px; height: 32px; border-radius: 50%; background: #fff; border: 1px solid #ced4da; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        /* 💡 浮動提示卡片 (Tooltip) */
         .tooltip { position: fixed; background: rgba(33, 37, 41, 0.95); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; z-index: 6000; pointer-events: none; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); line-height: 1.5; min-width: 180px; }
         .tooltip.show { opacity: 1; }
         .tt-group { display: flex; align-items: center; gap: 6px; font-weight: bold; margin-bottom: 4px; color: #a5d8ff; }
         .tt-color { width: 10px; height: 10px; border-radius: 2px; }
 
-        /* 💡 隱藏版重新載入按鈕 (超級不明顯) */
         .btn-force-reload { font-size: 10px; color: rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05); background: transparent; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: 0.3s; }
         .btn-force-reload:hover { color: #868e96; border-color: #ced4da; }
         
@@ -145,7 +142,6 @@
 </head>
 <body>
 
-<!-- 💡 資料載入遮罩 -->
 <div id="loadingOverlay">
     <div class="loader-spinner"></div>
     <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入會場與座位演算...</div>
@@ -228,16 +224,14 @@
         </div>
     </div>
     
-    <!-- 開發者資訊與隱藏版更新按鈕 -->
     <div class="footer-info">
-        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.24-2</span>
+        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.30-1</span>
         <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新</button>
     </div>
 </div>
 
 <div id="seatTooltip" class="tooltip"></div>
 
-<!-- 手機版底部彈出選單 -->
 <div id="bsOverlay" class="bottom-sheet-overlay" onclick="closeBottomSheet()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:4999;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
 <div id="bottomSheet" class="mobile-group-sheet">
     <div class="bs-handle"></div>
@@ -265,7 +259,11 @@
     const CACHE_KEY = "seats_cache_v11";
 
     let apiData = null, venueSeats = [], usersList = [], currentUser = null;
-    let scale = 0.95, translateX = 0, translateY = 0, isDragging = false, startX, startY;
+    let scale = 0.95, translateX = 0, translateY = 0, isDragging = false;
+    // 💡 修正兩指縮放中心點所需變數
+    let lastTouchDistance = 0;
+    let pinchCenterX = 0, pinchCenterY = 0;
+
     let isOverviewMode = false;
     let isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
     let isSwapMode = false, pendingSwaps = [], swapSeatA = null;
@@ -275,7 +273,10 @@
     const palette30 = ['#e6194B','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#42d4f4','#f032e6','#bfef45','#fabed4','#469990','#dcbeff','#9A6324','#fffac8','#800000','#aaffc3','#808000','#ffd8b1','#000075','#a9a9a9','#000000','#4B0082','#FF8C00','#00CED1','#FF1493','#7CFC00','#00BFFF','#FFD700','#8B4513'];
     let groupColors = {};
 
-    function updateTransform() { document.getElementById('canvas').style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`; }
+    function updateTransform() { 
+        document.getElementById('canvas').style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`; 
+    }
+    
     function getRelativePos(el, targetParent) {
         let x = 0, y = 0;
         while (el && el !== targetParent && el !== document.body) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; }
@@ -295,7 +296,6 @@
         }
     });
 
-    // 💡 隱藏版強制更新按鈕功能
     async function forceReloadData() {
         if(!confirm('即將重新下載最新座位資料，這可能需要幾秒鐘的時間。確定要更新嗎？')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
@@ -392,6 +392,7 @@
         }
     }
 
+    // 💡 電腦版直接點擊地圖彩色區塊以自動對焦
     function handleOverviewSeatClick(groupName) {
         if (!isOverviewMode || !groupName || groupName === "長官") return;
         document.getElementById('overviewHint').style.display = 'none';
@@ -467,7 +468,6 @@
         venueSeats.forEach(s => {
             const el = document.getElementById(`node-${s.seatId}`);
             if (!el) return;
-            // VIP 不受變色影響
             if (s.type === 'VIP') return; 
             
             if (enable && s.status === 'occupied') {
@@ -519,10 +519,10 @@
     function selectUser(user) {
         currentUser = user; searchInput.value = ''; dropdown.style.display = 'none';
         
-        const padRow = String(user.row).padStart(2, '0');
+        const rowText = user.row === 0 ? 'VIP' : `${String(user.row).padStart(2, '0')}排`;
         const padSeat = String(user.seatNo).padStart(2, '0');
         document.getElementById('mBadgeName').innerText = user.name;
-        document.getElementById('mBadgeSeat').innerText = `${user.floor} ${padRow}排-${padSeat}號`;
+        document.getElementById('mBadgeSeat').innerText = `${user.floor} ${rowText}-${padSeat}號`;
         
         refreshSeatStyles();
         
@@ -678,7 +678,6 @@
 
         venueSeats.filter(s => s.floor === '4F' && s.row === 0).forEach(s => {
             const n = document.createElement('div'); 
-            // 如果是 VIP 被指派，保留 reserved 樣式但可點擊
             n.className = `seat-node ${s.status === 'occupied' ? 'reserved' : s.status}`; 
             n.id = `node-${s.seatId}`; n.innerText = s.seatNo;
             n.dataset.info = JSON.stringify(s); n.dataset.group = s.group || "";
@@ -750,22 +749,20 @@
         return rowDiv;
     }
 
-    // 💡 恢復並優化 Tooltip 與 BottomSheet 顯示邏輯
     const tooltip = document.getElementById('seatTooltip');
     function setupTooltip() { window.addEventListener('scroll', hideTooltip, {passive:true}); }
     
     function showTooltip(e) {
-        if(isDragging || isMobileDevice()) return;
+        if(isDragging || isMobileDevice()) return; 
         let s;
         try { if (!e.target.dataset.info) return; s = JSON.parse(e.target.dataset.info); } catch (err) { return; }
 
         let html = '';
-        const seatTxt = `<small>${s.floor}</small> ${String(s.row).padStart(2,'0')}排 ${String(s.seatNo).padStart(2,'0')}號`;
+        const seatTxt = s.type === 'VIP' ? `VIP ${String(s.seatNo).padStart(2,'0')}號` : `<small>${s.floor}</small> ${String(s.row).padStart(2,'0')}排 ${String(s.seatNo).padStart(2,'0')}號`;
         
         if (s.status === 'empty' && s.type !== 'VIP') {
             html = `<div style="color:#40c057; font-weight:bold;">🟢 空席 (現場可用)</div><div style="font-size:12px; margin-top:4px; opacity:0.8;">${seatTxt}</div>`;
         } else if (s.type === 'VIP') {
-            // 💡 若 VIP 有長官資料
             if(s.name && s.name !== "貴賓席") {
                 html = `<div style="color:#ffd43b; font-weight:bold; margin-bottom:4px;">👑 貴賓保留席</div>
                         <div style="font-size:16px; margin-bottom:2px;">${s.name}</div>
@@ -798,7 +795,7 @@
         const overlay = document.getElementById('bsOverlay');
         const sheet = document.getElementById('bottomSheet');
         const content = document.getElementById('bsContent');
-        const seatTxt = `<small>${s.floor}</small> ${String(s.row).padStart(2,'0')}排 ${String(s.seatNo).padStart(2,'0')}號`;
+        const seatTxt = s.type === 'VIP' ? `VIP ${String(s.seatNo).padStart(2,'0')}號` : `<small>${s.floor}</small> ${String(s.row).padStart(2,'0')}排 ${String(s.seatNo).padStart(2,'0')}號`;
 
         let html = '';
         if (s.status === 'empty' && s.type !== 'VIP') {
@@ -808,7 +805,7 @@
                 html = `
                 <div style="display:inline-block; background:#ffd43b; color:#212529; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; margin-bottom:12px;">👑 長官席</div>
                 <div style="font-size:24px; font-weight:900; margin-bottom:4px;">${s.name} <span style="font-size:14px; font-weight:normal; color:#868e96;">${s.title}</span></div>
-                <div style="font-size:15px; color:#495057; margin-bottom:20px;">🏛️ ${s.school}</div>
+                <div style="font-size:15px; color:#495057; margin-bottom:20px;">🏛️️ ${s.school}</div>
                 <div style="background:#fff3cd; border:2px solid #ffe066; padding:14px; border-radius:12px; text-align:center;">
                     <div style="font-size:12px; color:#b08d00; margin-bottom:4px;">座席代號</div>
                     <div style="font-size:24px; font-weight:900; color:#b08d00;">${seatTxt}</div>
@@ -848,6 +845,7 @@
         });
     }
 
+    // 💡 修正了觸控縮放的邏輯，現在兩指縮放會以「手指按壓的中心點」為基準
     function setupPanZoom() {
         const viewport = document.getElementById('viewport');
         const canvas = document.getElementById('canvas');
@@ -855,35 +853,72 @@
         window.addEventListener('mousemove', (e) => { if (!isDragging) return; translateX = e.clientX - startX; translateY = e.clientY - startY; updateTransform(); });
         window.addEventListener('mouseup', () => { isDragging = false; });
         
-        let initDist = 0;
         viewport.addEventListener('touchstart', (e) => {
             canvas.style.transition = 'none';
-            if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX - translateX; startY = e.touches[0].clientY - translateY; }
-            else if (e.touches.length === 2) { isDragging = false; initDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
-        }, {passive:true});
-        viewport.addEventListener('touchmove', (e) => {
-            if (isDragging && e.touches.length === 1) { translateX = e.touches[0].clientX - startX; translateY = e.touches[0].clientY - startY; updateTransform(); }
-            else if (e.touches.length === 2) {
-                const cDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                scale = Math.min(Math.max(0.3, scale + (cDist - initDist) * 0.005), 2.2);
-                initDist = cDist; updateTransform();
+            if (e.touches.length === 1) { 
+                isDragging = true; 
+                startX = e.touches[0].clientX - translateX; 
+                startY = e.touches[0].clientY - translateY; 
+            } else if (e.touches.length === 2) { 
+                isDragging = false; 
+                lastTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                
+                // 計算兩指中心點 (相對於 viewport)
+                const rect = viewport.getBoundingClientRect();
+                pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
             }
         }, {passive:true});
+        
+        viewport.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length === 1) { 
+                translateX = e.touches[0].clientX - startX; 
+                translateY = e.touches[0].clientY - startY; 
+                updateTransform(); 
+            } else if (e.touches.length === 2) {
+                const newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                
+                // 計算新的 scale，並限制範圍
+                let newScale = scale * (newDist / lastTouchDistance);
+                newScale = Math.min(Math.max(0.3, newScale), 2.5);
+                
+                // 計算基於中心點的平移修正量
+                const scaleRatio = newScale / scale;
+                translateX = pinchCenterX - (pinchCenterX - translateX) * scaleRatio;
+                translateY = pinchCenterY - (pinchCenterY - translateY) * scaleRatio;
+                
+                scale = newScale;
+                lastTouchDistance = newDist;
+                updateTransform();
+            }
+        }, {passive:true});
+        
         viewport.addEventListener('touchend', () => { isDragging = false; });
     }
     
     window.zoom = function(delta) {
-        document.getElementById('canvas').style.transition = 'transform 0.2s ease-out';
-        scale = Math.min(Math.max(0.3, scale + delta), 2.2); updateTransform();
-        setTimeout(() => document.getElementById('canvas').style.transition = 'none', 200);
+        const viewport = document.getElementById('viewport');
+        const canvas = document.getElementById('canvas');
+        canvas.style.transition = 'transform 0.2s ease-out';
+        
+        const oldScale = scale;
+        scale = Math.min(Math.max(0.3, scale + delta), 2.5);
+        
+        // 按鈕縮放預設以畫面正中心為基準點
+        const centerX = viewport.clientWidth / 2;
+        const centerY = viewport.clientHeight / 2;
+        const scaleRatio = scale / oldScale;
+        
+        translateX = centerX - (centerX - translateX) * scaleRatio;
+        translateY = centerY - (centerY - translateY) * scaleRatio;
+
+        updateTransform();
+        setTimeout(() => canvas.style.transition = 'none', 200);
     };
     window.resetZoom = function() {
         fitAuditoriumOverview();
     };
 
-    // ==========================================
-    // 🎯 管理員模式專屬功能 (總覽與批次換位)
-    // ==========================================
     function setupAdminTrigger() {
         let clickTimer;
         document.getElementById('mainTitle').addEventListener('click', () => {
