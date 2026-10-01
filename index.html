@@ -59,7 +59,6 @@
         .m-sheet-item { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-bottom: 1px solid #f8f9fa; font-size: 14px; font-weight: 600; color: #343a40; cursor: pointer; }
         .m-sheet-item:active { background: #e7f5ff; }
 
-        /* 💡 電腦版的右側分團控制面板 */
         .desktop-group-panel { position: absolute; top: 24px; right: -320px; width: 280px; background: #fff; border-radius: 12px; box-shadow: -4px 0 20px rgba(0,0,0,0.1); border: 1px solid #ced4da; height: calc(100% - 48px); display: flex; flex-direction: column; z-index: 3000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; pointer-events: none; }
         .desktop-group-panel.show { right: 24px; opacity: 1; pointer-events: auto; }
         .desktop-panel-header { padding: 16px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 12px 12px 0 0; }
@@ -154,7 +153,7 @@
 
 <div id="loadingOverlay">
     <div class="loader-spinner"></div>
-    <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入會場與座位演算...</div>
+    <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入極速座位圖...</div>
 </div>
 
 <div id="minimalBadge" class="minimal-user-badge" onclick="resetToSearch()">
@@ -193,11 +192,9 @@
         </div>
     </div>
 
-    <!-- 手機版懸浮按鈕 -->
     <button id="mobileGroupFab" class="mobile-group-fab" onclick="openMobileGroupSheet()">🟢 分團列表</button>
 
     <div class="map-viewport" id="viewport">
-        <!-- 💡 新增：電腦版側邊分團控制面板 -->
         <div id="desktopGroupPanel" class="desktop-group-panel">
             <div class="desktop-panel-header">
                 <div class="desktop-panel-title">📌 選擇分團顯示</div>
@@ -245,8 +242,8 @@
     </div>
     
     <div class="footer-info">
-        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.09.30-2</span>
-        <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新</button>
+        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 20261001-1</span>
+        <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新資料</button>
     </div>
 </div>
 
@@ -269,15 +266,16 @@
     <div id="mGroupList" class="m-sheet-list"></div>
 </div>
 
+<!-- 💡 更新版：管理者面板 (包含下載按鈕) -->
 <button id="btnAdmin" class="admin-btn" onclick="openAdmin()">📊 主辦方總覽與換位</button>
 <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdmin()">
     <div class="admin-content" id="adminContentBody"></div>
 </div>
 
 <script>
-    // ⚠️ API 網址維持不變
+    // ⚠️ 請保留原本的 GAS URL，作為下載最新檔案與換位的伺服器通道
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzHyeT0TZINbBA2vxXhOPCf-kbYM4PvA-IEjBbQwFI2o1Z8GEdxL58_f85i6o_SiOlC/exec";
-    const CACHE_KEY = "seats_cache_v11";
+    const CACHE_KEY = "seats_cache_v12"; // 避免與舊快取衝突
 
     let apiData = null, venueSeats = [], usersList = [], currentUser = null;
     let scale = 0.95, translateX = 0, translateY = 0, isDragging = false;
@@ -302,28 +300,44 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         setupPanZoom(); setupAdminTrigger(); setupTooltip();
+        
         let cached = localStorage.getItem(CACHE_KEY);
-        if (cached) { 
+        if (cached && !isAdmin) { 
+            // 若為一般訪客且已有快取，直接使用 (完全不發 API，達成零秒開啟)
             initData(JSON.parse(cached)); 
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
-            backgroundCheckUpdate(); 
         } else { 
+            // 第一次載入，優先去同一個目錄下抓 data.json 靜態檔 (加上時間戳防止瀏覽器快取舊檔)
             fetchSilent(); 
         }
     });
 
+    // 💡 強制繞過靜態檔，直接向 Google 要最新資料 (測試用)
     async function forceReloadData() {
-        if(!confirm('即將重新下載最新座位資料，這可能需要幾秒鐘的時間。確定要更新嗎？')) return;
+        if(!confirm('即將繞過靜態加速檔，直接向 Google 下載最新座位資料（需等待數秒）。確定要更新嗎？')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
         setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '1', 10);
-        localStorage.removeItem(CACHE_KEY);
-        await fetchSilent();
+        
+        try {
+            const resp = await fetch(GAS_API_URL);
+            const data = await resp.json();
+            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            initData(data);
+            alert("✅ 已成功從 Google 載入最新座位表！\n若要永久生效，請記得進入管理員模式下載 data.json 上傳至 GitHub。");
+        } catch (err) { 
+            alert('網路連線失敗，無法取得最新座位表。');
+        } finally {
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
+        }
     }
 
     async function fetchSilent() {
         try {
-            const resp = await fetch(GAS_API_URL);
+            // 🚀 優先去抓取 GitHub 上的靜態 JSON 檔案 (極速載入)
+            const resp = await fetch("data.json?t=" + new Date().getTime());
+            if (!resp.ok) throw new Error("找不到靜態 data.json");
             const data = await resp.json();
             localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             initData(data);
@@ -331,34 +345,26 @@
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
         } catch (err) { 
-            console.warn("API 讀取失敗"); 
-            alert('網路連線失敗，無法取得最新座位表。請重新整理網頁。');
-        }
-    }
-
-    async function backgroundCheckUpdate() {
-        try {
-            const resp = await fetch(GAS_API_URL);
-            const newData = await resp.json();
-            const oldDataStr = localStorage.getItem(CACHE_KEY);
-            if (!oldDataStr || JSON.stringify(newData.users) !== JSON.stringify(JSON.parse(oldDataStr).users)) {
-                console.log("🔍 背景偵測到座位資料更新，正在無縫重新渲染...");
-                localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
-                apiData = newData; 
-                venueSeats = JSON.parse(JSON.stringify(newData.seats || [])); 
-                usersList = newData.users || [];
-                renderAuditorium();
-                buildMobileGroupList();
-                if (currentUser) refreshSeatStyles();
+            console.warn("靜態 JSON 讀取失敗，降級使用 GAS API (會比較慢)..."); 
+            // 找不到 data.json，才去撈原本很慢的 GAS
+            try {
+                const resp = await fetch(GAS_API_URL);
+                const data = await resp.json();
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                initData(data);
+            } catch(e) {
+                alert('系統載入失敗，請確認網路連線或 GitHub 上的 data.json 是否存在。');
+            } finally {
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
             }
-        } catch (e) { console.log("背景檢查更新失敗，忽略。"); }
+        }
     }
 
     function initData(data) {
         apiData = data; venueSeats = JSON.parse(JSON.stringify(data.seats || [])); usersList = data.users || [];
         
-        // 排除空白的群組，確保不會出錯
-        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g))];
+        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g && g !== "長官"))];
         uniqueGroups.forEach((g, i) => groupColors[g] = palette30[i % palette30.length]);
         
         if (isAdmin) activateAdminMode(true);
@@ -401,7 +407,7 @@
                 fab.classList.add('show');
             } else {
                 hint.style.display = 'block';
-                desktopPanel.classList.add('show'); // 電腦版展開側邊欄
+                desktopPanel.classList.add('show'); 
             }
             applyOverviewColors(true);
             setTimeout(fitAuditoriumOverview, 100);
@@ -411,7 +417,7 @@
             hint.style.display = 'none';
             banner.classList.remove('show');
             fab.classList.remove('show');
-            desktopPanel.classList.remove('show'); // 收起側邊欄
+            desktopPanel.classList.remove('show'); 
             
             applyOverviewColors(isAdmin); 
             removeHighlightGroupSeats();
@@ -420,7 +426,7 @@
     }
 
     function handleOverviewSeatClick(groupName) {
-        if (!isOverviewMode || !groupName) return;
+        if (!isOverviewMode || !groupName || groupName === "長官") return;
         document.getElementById('overviewHint').style.display = 'none';
         const banner = document.getElementById('activeGroupBanner');
         document.getElementById('activeGroupColor').style.backgroundColor = groupColors[groupName];
@@ -434,7 +440,7 @@
     }
 
     function getGroupSortWeight(g) {
-        if (!g) return 99;
+        if (!g || g === "長官") return 99;
         if (g.includes('語文') && g.includes('國語文')) return 1;
         if (g.includes('語文') && g.includes('本土語文')) return 2;
         if (g.includes('語文') && g.includes('英語文')) return 3;
@@ -464,7 +470,7 @@
         mListDiv.innerHTML = '';
         dListDiv.innerHTML = '';
         
-        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied').map(s => s.group))].filter(g => g);
+        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied' && s.group !== '長官').map(s => s.group))].filter(g => g);
         activeGroups.sort((a, b) => {
             let wa = getGroupSortWeight(a), wb = getGroupSortWeight(b);
             if (wa !== wb) return wa - wb;
@@ -474,14 +480,12 @@
         });
         
         activeGroups.forEach(g => {
-            // 手機版選項
             const mItem = document.createElement('div');
             mItem.className = 'm-sheet-item';
             mItem.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
             mItem.onclick = () => handleOverviewSeatClick(g);
             mListDiv.appendChild(mItem);
             
-            // 💡 電腦版選項
             const dItem = document.createElement('div');
             dItem.className = 'desktop-panel-item';
             dItem.innerHTML = `<div class="legend-box" style="background:${groupColors[g]}; border-radius:50%;"></div><span>${g}</span>`;
@@ -505,6 +509,7 @@
         venueSeats.forEach(s => {
             const el = document.getElementById(`node-${s.seatId}`);
             if (!el) return;
+            if (s.type === 'VIP') return; 
             
             if (enable && s.status === 'occupied') {
                 el.style.backgroundColor = groupColors[s.group] || '#495057';
@@ -545,7 +550,6 @@
         const cX = (minX + maxX) / 2, cY = (minY + maxY) / 2;
         const vW = viewport.clientWidth, vH = viewport.clientHeight;
         
-        // 💡 如果是電腦版，中心點計算要考慮右邊拉出的面板寬度 (偏左一點)
         const offsetCenterX = isMobileDevice() ? (vW / 2) : (vW / 2) - 100;
         
         scale = Math.min((vW * 0.6) / (maxX - minX), (vH * 0.7) / (maxY - minY));
@@ -561,7 +565,6 @@
     function selectUser(user) {
         currentUser = user; searchInput.value = ''; dropdown.style.display = 'none';
         
-        // 💡 VIP 搜尋的極簡標題顯示
         const rowText = user.row === 0 ? 'VIP' : `${String(user.row).padStart(2, '0')}排`;
         const padSeat = String(user.seatNo).padStart(2, '0');
         document.getElementById('mBadgeName').innerText = user.name;
@@ -696,7 +699,6 @@
         const rect = targetEl.getBoundingClientRect();
         if (!targetFloor) {
             scale = isMobileDevice() ? 0.38 : 0.6; 
-            // 💡 電腦版鳥瞰時也要考慮面板空間
             const offsetCenterX = (isMobileDevice() || !isOverviewMode) ? (vW / 2) : (vW / 2) - 100;
             translateX = offsetCenterX - (820 * scale) / 2;
             translateY = isMobileDevice() ? 10 : 20; 
@@ -729,7 +731,7 @@
             
             n.onclick = () => { 
                 if (isSwapMode) handleBatchSwapClick(s, n);
-                else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
+                else if (isOverviewMode && s.group && s.group !== "長官") handleOverviewSeatClick(s.group); 
                 else if (isMobileDevice()) showBottomSheet(s); 
             };
             if (!isMobileDevice()) {
@@ -978,6 +980,7 @@
         setTimeout(fitAuditoriumOverview, 100); 
     }
 
+    // 💡 管理員面板加入【🚀 下載最新 data.json】按鈕，用於 Jamstack 架構快速更新 GitHub
     function openAdmin() {
         if(!apiData) return;
         let html = `
@@ -985,6 +988,13 @@
             <h2 style="font-size:18px; color:#1864ab;">📊 管理者儀表板</h2>
             <button onclick="closeAdmin()" style="border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
         </div>
+        
+        <!-- 💡 新增的靜態下載按鈕區塊 -->
+        <div style="background:#d4edda; padding:12px; border-radius:8px; margin-bottom:16px; font-size:13px; border:1px solid #c3e6cb;">
+            <strong>🚀 靜態加速檔匯出：</strong><br>若您有更換座位，請點擊下方按鈕下載最新版 JSON，並將其命名為 <code>data.json</code> 上傳至 GitHub 覆蓋舊檔。這樣所有訪客都能享受「秒開」的極速體驗！<br>
+            <button onclick="downloadStaticJson()" style="margin-top:8px; background:#28a745; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">⬇️ 下載最新 data.json</button>
+        </div>
+
         <div style="background:#fff3cd; padding:12px; border-radius:8px; margin-bottom:16px; font-size:13px; border:1px solid #ffe066;">
             <strong>🔄 現場批次換位：</strong>開啟後，可連續兩兩對調名單，最後點擊「儲存同步」一次上傳。<br>
             <button onclick="toggleSwapMode()" style="margin-top:8px; background:#f59f00; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">啟動批次換位</button>
@@ -1006,6 +1016,38 @@
         document.getElementById('adminModal').style.display = 'flex';
     }
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+
+    // 💡 執行下載最新 JSON 功能的腳本
+    async function downloadStaticJson() {
+        if(!confirm("即將向 Google 後台要求最新的座位資料並下載，這需要幾秒鐘的時間，確定嗎？")) return;
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '1', 10);
+        
+        try {
+            const resp = await fetch(GAS_API_URL);
+            const data = await resp.json();
+            
+            const dataStr = JSON.stringify(data);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "data.json";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert("✅ 下載完成！\n請將此 data.json 檔案上傳至 GitHub，覆蓋原本的舊檔案。");
+        } catch (err) {
+            alert("❌ 下載失敗，請檢查網路連線或 GAS 狀態：\n" + err.message);
+        } finally {
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
+        }
+    }
 
     function toggleSwapMode() {
         closeAdmin();
