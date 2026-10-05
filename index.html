@@ -29,7 +29,32 @@
         header h1 { font-size: 20px; font-weight: 700; color: #1c7ed6; margin-bottom: 4px; cursor: pointer; user-select: none; }
         header p { font-size: 12px; color: var(--text-muted); }
 
-        .search-wrapper { position: relative; max-width: 500px; margin: 0 auto 10px; }
+        /* 💡 新增：高品質行前公告按鈕 (Awwwards Style) */
+        .btn-announce-glow {
+            position: relative;
+            background: linear-gradient(135deg, #1864ab 0%, #1c7ed6 100%);
+            color: #ffffff; border: none; padding: 10px 24px;
+            border-radius: 30px; font-size: 14px; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(24, 100, 171, 0.3); 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 12px; overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        .btn-announce-glow::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shine 3.5s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; }
+        }
+        .btn-announce-glow:hover { 
+            transform: translateY(-2px) scale(1.02); 
+            box-shadow: 0 8px 25px rgba(24, 100, 171, 0.4); 
+        }
+
+        .search-wrapper { position: relative; max-width: 500px; margin: 16px auto 10px; }
         .search-input { width: 100%; padding: 12px 16px; font-size: 15px; border: 2px solid #ced4da; border-radius: 10px; outline: none; transition: all 0.2s; }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(24, 100, 171, 0.15); }
         .autocomplete-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid #e9ecef; max-height: 220px; overflow-y: auto; z-index: 1000; display: none; }
@@ -140,12 +165,66 @@
         
         .footer-info { display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 10px; color: #adb5bd; margin-top: 16px; padding-bottom: 8px; }
         .footer-info a { color: #adb5bd; text-decoration: none; }
+
+        /* 💡 新增：毛玻璃行前公告彈窗樣式 */
+        .announce-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 7000; opacity: 0; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        .announce-overlay.show { opacity: 1; pointer-events: auto; }
+        .announce-modal {
+            background: #ffffff; width: 92%; max-width: 600px; max-height: 88vh;
+            border-radius: 24px; box-shadow: 0 24px 48px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: translateY(40px) scale(0.96); opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .announce-overlay.show .announce-modal { transform: translateY(0) scale(1); opacity: 1; }
+        .announce-header { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 24px; position: relative; border-bottom: 1px solid #dee2e6; }
+        .announce-title { font-size: 20px; font-weight: 800; color: #1864ab; display: flex; align-items: center; gap: 8px;}
+        .announce-close {
+            position: absolute; top: 20px; right: 20px; background: #e9ecef; border: none; width: 32px; height: 32px; 
+            border-radius: 50%; color: #495057; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .announce-close:hover { background: #dee2e6; color: #212529; }
+        .announce-body { padding: 24px; overflow-y: auto; background: #f8f9fa; }
         
+        .info-card {
+            display: flex; gap: 16px; background: #ffffff; padding: 18px; 
+            border-radius: 16px; margin-bottom: 16px; border: 1px solid #e9ecef;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .info-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: #dee2e6; }
+        .info-icon {
+            font-size: 24px; background: #e7f5ff; width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(24, 100, 171, 0.1);
+        }
+        .info-content h3 { color: #1864ab; font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+        .info-content p, .info-content ul { font-size: 14px; color: #495057; line-height: 1.6; margin-bottom: 8px; }
+        .info-content ul { margin-left: 20px; }
+        .info-content li { margin-bottom: 4px; }
+        .action-link {
+            display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700;
+            color: #1c7ed6; text-decoration: none; background: #e7f5ff; padding: 8px 14px;
+            border-radius: 8px; transition: 0.2s; margin-right: 8px; margin-top: 4px;
+        }
+        .action-link:hover { background: #d0ebff; color: #1864ab; }
+        .highlight-badge { background: #ffe3e3; color: #e03131; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+
         @media (max-width: 768px) {
             body { padding: 0; background: var(--card-bg); }
             .app-container { padding: 12px; box-shadow: none; border-radius: 0; min-height: 100vh; }
             .map-viewport { height: calc(100vh - 160px); border-radius: 8px; }
             .desktop-group-panel { display: none !important; }
+            
+            .info-card { flex-direction: column; gap: 12px; padding: 16px; }
+            .info-icon { width: 40px; height: 40px; font-size: 20px; }
+            .announce-header { padding: 20px; }
+            .announce-body { padding: 16px; }
         }
     </style>
 </head>
@@ -153,7 +232,7 @@
 
 <div id="loadingOverlay">
     <div class="loader-spinner"></div>
-    <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入極速座位圖...</div>
+    <div style="color: #1864ab; font-weight: bold; font-size: 15px; letter-spacing: 1px;">⏳ 正在載入會場與座位演算...</div>
 </div>
 
 <div id="minimalBadge" class="minimal-user-badge" onclick="resetToSearch()">
@@ -165,8 +244,13 @@
 <div class="app-container">
     <div id="topControls" class="top-controls">
         <header>
-            <h1 id="mainTitle">🏛️ 115學年度國教地方輔導團授證典禮 2026/10/6（二）</h1>
-            <p>場地：長安國小演藝廳 (請輸入姓名查詢專屬座席)</p>
+            <h1 id="mainTitle">🏛️ 115學年度國教及特教地方輔導團授證典禮</h1>
+            <p>場地：長安國小演藝廳 (請輸入姓名查詢專屬座席) 115/10/6 14:00-16:30</p>
+            
+            <!-- 💡 新增：精美的行前公告按鈕 -->
+            <button class="btn-announce-glow" onclick="openAnnouncement()">
+                🔔 點此查看：重要行前公告與會場動線
+            </button>
         </header>
 
         <div class="search-wrapper">
@@ -192,9 +276,11 @@
         </div>
     </div>
 
+    <!-- 手機版懸浮按鈕 -->
     <button id="mobileGroupFab" class="mobile-group-fab" onclick="openMobileGroupSheet()">🟢 分團列表</button>
 
     <div class="map-viewport" id="viewport">
+        <!-- 電腦版側邊分團控制面板 -->
         <div id="desktopGroupPanel" class="desktop-group-panel">
             <div class="desktop-panel-header">
                 <div class="desktop-panel-title">📌 選擇分團顯示</div>
@@ -242,8 +328,8 @@
     </div>
     
     <div class="footer-info">
-        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 20261001-1</span>
-        <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新資料</button>
+        <span>開發者：黃俊崎 (<a href="mailto:tp8620sup@gmail.com">tp8620sup@gmail.com</a>) ｜ 更新日期：2026.10.05</span>
+        <button class="btn-force-reload" onclick="forceReloadData()">🔄 更新</button>
     </div>
 </div>
 
@@ -266,16 +352,80 @@
     <div id="mGroupList" class="m-sheet-list"></div>
 </div>
 
-<!-- 💡 更新版：管理者面板 (包含下載按鈕) -->
 <button id="btnAdmin" class="admin-btn" onclick="openAdmin()">📊 主辦方總覽與換位</button>
 <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdmin()">
     <div class="admin-content" id="adminContentBody"></div>
 </div>
 
+<!-- 💡 新增：毛玻璃行前公告彈窗結構 -->
+<div id="announceOverlay" class="announce-overlay" onclick="if(event.target===this) closeAnnouncement()">
+    <div class="announce-modal">
+        <div class="announce-header">
+            <div class="announce-title">📢 授證典禮 行前公告須知</div>
+            <button class="announce-close" onclick="closeAnnouncement()">✕</button>
+        </div>
+        <div class="announce-body">
+            
+            <div class="info-card">
+                <div class="info-icon">📍</div>
+                <div class="info-content">
+                    <h3>一、會場動線指引</h3>
+                    <p>本活動於「長安國小演藝廳」舉辦，敬請由「<strong>長安國小側門</strong>」進出。<br>
+                    <span class="highlight-badge">※ 溫馨提醒</span> 本場地 <strong>無提供停車位</strong>，敬請搭乘大眾運輸工具前往會場。</p>
+                    <a href="https://maps.app.goo.gl/cGxXQT1Ym5yRV9b68" target="_blank" class="action-link">🗺️ Google Maps 導航</a>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-icon">🪑</div>
+                <div class="info-content">
+                    <h3>二、專屬座席與換位規範</h3>
+                    <ul>
+                        <li>請多利用本系統查詢，並以「<strong>個人專屬座席</strong>」入座。</li>
+                        <li>為凝聚團隊向心力，<strong>同分團成員間可自由換位</strong>。</li>
+                        <li>惟各分團之間未保留空位，懇請 <strong>勿占用他人專屬座席</strong>。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-icon">🏆</div>
+                <div class="info-content">
+                    <h3>三、會後成果報告（體育館）</h3>
+                    <p>授證儀式結束後，請各分團移步至「<strong>體育館</strong>」向局長進行成果報告。</p>
+                    <ul>
+                        <li>全市共 21 個分團，每團僅停留 <strong>2 分鐘</strong>（包含 1 分鐘報告及 1 分鐘合照）。</li>
+                        <li>煩請各團預先確認「簡報內容」與「報告代表人」，以確保流程順暢。</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-icon">🚫</div>
+                <div class="info-content">
+                    <h3>四、場館飲食規範</h3>
+                    <p>為維護優質的場館環境，室內展演區及體育館皆 <span class="highlight-badge">嚴禁飲食</span>。<br>如需進食或飲水，請統一至「<strong>梯廳報到處</strong>」使用。</p>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-icon">📎</div>
+                <div class="info-content">
+                    <h3>五、重要附件資源</h3>
+                    <p>提供場館空間圖供您隨時參閱：</p>
+                    <a href="https://drive.google.com/file/d/1NbTwQimccs-cmq9jQYnv1JaATJpm96T2/view?usp=drive_link" target="_blank" class="action-link">📄 場地平面圖</a>
+                    <a href="https://drive.google.com/file/d/1lLCI7Ienc-CLxY49Jkr1BD4nP5jooRvE/view?usp=drive_link" target="_blank" class="action-link">👥 各分團座位圖</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
-    // ⚠️ 請保留原本的 GAS URL，作為下載最新檔案與換位的伺服器通道
+    // ⚠️ API 網址維持不變
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzHyeT0TZINbBA2vxXhOPCf-kbYM4PvA-IEjBbQwFI2o1Z8GEdxL58_f85i6o_SiOlC/exec";
-    const CACHE_KEY = "seats_cache_v12"; // 避免與舊快取衝突
+    const CACHE_KEY = "seats_cache_v11";
 
     let apiData = null, venueSeats = [], usersList = [], currentUser = null;
     let scale = 0.95, translateX = 0, translateY = 0, isDragging = false;
@@ -298,46 +448,46 @@
         return { x, y };
     }
 
+    // 💡 新增：行前公告開關控制
+    function openAnnouncement() {
+        document.getElementById('announceOverlay').classList.add('show');
+    }
+    function closeAnnouncement() {
+        document.getElementById('announceOverlay').classList.remove('show');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         setupPanZoom(); setupAdminTrigger(); setupTooltip();
-        
         let cached = localStorage.getItem(CACHE_KEY);
-        if (cached && !isAdmin) { 
-            // 若為一般訪客且已有快取，直接使用 (完全不發 API，達成零秒開啟)
+        if (cached) { 
             initData(JSON.parse(cached)); 
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
+            backgroundCheckUpdate(); 
         } else { 
-            // 第一次載入，優先去同一個目錄下抓 data.json 靜態檔 (加上時間戳防止瀏覽器快取舊檔)
             fetchSilent(); 
+        }
+
+        // 💡 智慧體驗：首次進站稍微延遲後優雅浮現行前公告，之後不再自動打擾
+        if (!localStorage.getItem('hasSeenAnnounce_115')) {
+            setTimeout(() => {
+                openAnnouncement();
+                localStorage.setItem('hasSeenAnnounce_115', 'true');
+            }, 800); 
         }
     });
 
-    // 💡 強制繞過靜態檔，直接向 Google 要最新資料 (測試用)
     async function forceReloadData() {
-        if(!confirm('即將繞過靜態加速檔，直接向 Google 下載最新座位資料（需等待數秒）。確定要更新嗎？')) return;
+        if(!confirm('即將重新下載最新座位資料，這可能需要幾秒鐘的時間。確定要更新嗎？')) return;
         document.getElementById('loadingOverlay').style.display = 'flex';
         setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '1', 10);
-        
-        try {
-            const resp = await fetch(GAS_API_URL);
-            const data = await resp.json();
-            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-            initData(data);
-            alert("✅ 已成功從 Google 載入最新座位表！\n若要永久生效，請記得進入管理員模式下載 data.json 上傳至 GitHub。");
-        } catch (err) { 
-            alert('網路連線失敗，無法取得最新座位表。');
-        } finally {
-            document.getElementById('loadingOverlay').style.opacity = '0';
-            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
-        }
+        localStorage.removeItem(CACHE_KEY);
+        await fetchSilent();
     }
 
     async function fetchSilent() {
         try {
-            // 🚀 優先去抓取 GitHub 上的靜態 JSON 檔案 (極速載入)
-            const resp = await fetch("data.json?t=" + new Date().getTime());
-            if (!resp.ok) throw new Error("找不到靜態 data.json");
+            const resp = await fetch(GAS_API_URL);
             const data = await resp.json();
             localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             initData(data);
@@ -345,26 +495,33 @@
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
         } catch (err) { 
-            console.warn("靜態 JSON 讀取失敗，降級使用 GAS API (會比較慢)..."); 
-            // 找不到 data.json，才去撈原本很慢的 GAS
-            try {
-                const resp = await fetch(GAS_API_URL);
-                const data = await resp.json();
-                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                initData(data);
-            } catch(e) {
-                alert('系統載入失敗，請確認網路連線或 GitHub 上的 data.json 是否存在。');
-            } finally {
-                document.getElementById('loadingOverlay').style.opacity = '0';
-                setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
-            }
+            console.warn("API 讀取失敗"); 
+            alert('網路連線失敗，無法取得最新座位表。請重新整理網頁。');
         }
+    }
+
+    async function backgroundCheckUpdate() {
+        try {
+            const resp = await fetch(GAS_API_URL);
+            const newData = await resp.json();
+            const oldDataStr = localStorage.getItem(CACHE_KEY);
+            if (!oldDataStr || JSON.stringify(newData.users) !== JSON.stringify(JSON.parse(oldDataStr).users)) {
+                console.log("🔍 背景偵測到座位資料更新，正在無縫重新渲染...");
+                localStorage.setItem(CACHE_KEY, JSON.stringify(newData));
+                apiData = newData; 
+                venueSeats = JSON.parse(JSON.stringify(newData.seats || [])); 
+                usersList = newData.users || [];
+                renderAuditorium();
+                buildMobileGroupList();
+                if (currentUser) refreshSeatStyles();
+            }
+        } catch (e) { console.log("背景檢查更新失敗，忽略。"); }
     }
 
     function initData(data) {
         apiData = data; venueSeats = JSON.parse(JSON.stringify(data.seats || [])); usersList = data.users || [];
         
-        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g && g !== "長官"))];
+        let uniqueGroups = [...new Set(venueSeats.map(s => s.group).filter(g => g))];
         uniqueGroups.forEach((g, i) => groupColors[g] = palette30[i % palette30.length]);
         
         if (isAdmin) activateAdminMode(true);
@@ -426,7 +583,7 @@
     }
 
     function handleOverviewSeatClick(groupName) {
-        if (!isOverviewMode || !groupName || groupName === "長官") return;
+        if (!isOverviewMode || !groupName) return;
         document.getElementById('overviewHint').style.display = 'none';
         const banner = document.getElementById('activeGroupBanner');
         document.getElementById('activeGroupColor').style.backgroundColor = groupColors[groupName];
@@ -440,7 +597,7 @@
     }
 
     function getGroupSortWeight(g) {
-        if (!g || g === "長官") return 99;
+        if (!g) return 99;
         if (g.includes('語文') && g.includes('國語文')) return 1;
         if (g.includes('語文') && g.includes('本土語文')) return 2;
         if (g.includes('語文') && g.includes('英語文')) return 3;
@@ -470,7 +627,7 @@
         mListDiv.innerHTML = '';
         dListDiv.innerHTML = '';
         
-        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied' && s.group !== '長官').map(s => s.group))].filter(g => g);
+        const activeGroups = [...new Set(venueSeats.filter(s => s.status === 'occupied').map(s => s.group))].filter(g => g);
         activeGroups.sort((a, b) => {
             let wa = getGroupSortWeight(a), wb = getGroupSortWeight(b);
             if (wa !== wb) return wa - wb;
@@ -509,7 +666,6 @@
         venueSeats.forEach(s => {
             const el = document.getElementById(`node-${s.seatId}`);
             if (!el) return;
-            if (s.type === 'VIP') return; 
             
             if (enable && s.status === 'occupied') {
                 el.style.backgroundColor = groupColors[s.group] || '#495057';
@@ -731,7 +887,7 @@
             
             n.onclick = () => { 
                 if (isSwapMode) handleBatchSwapClick(s, n);
-                else if (isOverviewMode && s.group && s.group !== "長官") handleOverviewSeatClick(s.group); 
+                else if (isOverviewMode && s.group) handleOverviewSeatClick(s.group); 
                 else if (isMobileDevice()) showBottomSheet(s); 
             };
             if (!isMobileDevice()) {
@@ -980,7 +1136,6 @@
         setTimeout(fitAuditoriumOverview, 100); 
     }
 
-    // 💡 管理員面板加入【🚀 下載最新 data.json】按鈕，用於 Jamstack 架構快速更新 GitHub
     function openAdmin() {
         if(!apiData) return;
         let html = `
@@ -988,13 +1143,6 @@
             <h2 style="font-size:18px; color:#1864ab;">📊 管理者儀表板</h2>
             <button onclick="closeAdmin()" style="border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
         </div>
-        
-        <!-- 💡 新增的靜態下載按鈕區塊 -->
-        <div style="background:#d4edda; padding:12px; border-radius:8px; margin-bottom:16px; font-size:13px; border:1px solid #c3e6cb;">
-            <strong>🚀 靜態加速檔匯出：</strong><br>若您有更換座位，請點擊下方按鈕下載最新版 JSON，並將其命名為 <code>data.json</code> 上傳至 GitHub 覆蓋舊檔。這樣所有訪客都能享受「秒開」的極速體驗！<br>
-            <button onclick="downloadStaticJson()" style="margin-top:8px; background:#28a745; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">⬇️ 下載最新 data.json</button>
-        </div>
-
         <div style="background:#fff3cd; padding:12px; border-radius:8px; margin-bottom:16px; font-size:13px; border:1px solid #ffe066;">
             <strong>🔄 現場批次換位：</strong>開啟後，可連續兩兩對調名單，最後點擊「儲存同步」一次上傳。<br>
             <button onclick="toggleSwapMode()" style="margin-top:8px; background:#f59f00; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">啟動批次換位</button>
@@ -1016,38 +1164,6 @@
         document.getElementById('adminModal').style.display = 'flex';
     }
     function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-
-    // 💡 執行下載最新 JSON 功能的腳本
-    async function downloadStaticJson() {
-        if(!confirm("即將向 Google 後台要求最新的座位資料並下載，這需要幾秒鐘的時間，確定嗎？")) return;
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '1', 10);
-        
-        try {
-            const resp = await fetch(GAS_API_URL);
-            const data = await resp.json();
-            
-            const dataStr = JSON.stringify(data);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "data.json";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert("✅ 下載完成！\n請將此 data.json 檔案上傳至 GitHub，覆蓋原本的舊檔案。");
-        } catch (err) {
-            alert("❌ 下載失敗，請檢查網路連線或 GAS 狀態：\n" + err.message);
-        } finally {
-            document.getElementById('loadingOverlay').style.opacity = '0';
-            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
-        }
-    }
 
     function toggleSwapMode() {
         closeAdmin();
